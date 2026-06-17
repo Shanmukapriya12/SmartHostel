@@ -1,0 +1,29 @@
+{
+  "name": "smart_hostel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/smart_hostel_tests.js",
+    "test:headless": "node tests/smart_hostel_tests.js --headless"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shanmukapriya12/SmartHostel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Shanmukapriya12/SmartHostel/issues"
+  },
+  "homepage": "https://github.com/Shanmukapriya12/SmartHostel#readme",
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.45.0"
+  },
+  "devDependencies": {
+    "chromedriver": "^149.0.3"
+  }
+}
