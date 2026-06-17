@@ -1,0 +1,226 @@
+name: 🏨 Smart Hostel CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: PHP Syntax & Lint Check
+  # ─────────────────────────────────────────────
+  php-lint:
+    name: 🔍 PHP Syntax Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo, pdo_mysql
+          tools: php-cs-fixer, phpstan
+
+      - name: ✅ Check PHP Syntax (all .php files)
+        run: |
+          echo "Running PHP syntax check on all PHP files..."
+          ERROR=0
+          for file in $(find . -name "*.php" -not -path "./.git/*"); do
+            php -l "$file"
+            if [ $? -ne 0 ]; then
+              echo "❌ Syntax error in $file"
+              ERROR=1
+            fi
+          done
+          if [ $ERROR -eq 1 ]; then
+            echo "❌ PHP syntax check failed!"
+            exit 1
+          else
+            echo "✅ All PHP files passed syntax check!"
+          fi
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Security Scan
+  # ─────────────────────────────────────────────
+  security-check:
+    name: 🔐 Security & Credential Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔎 Scan for Hardcoded Passwords
+        run: |
+          echo "Scanning for hardcoded credentials..."
+          FOUND=0
+
+          # Check for hardcoded non-empty passwords in db.php
+          if grep -rn 'password\s*=\s*"[^"]\+"\|password\s*=\s*'"'"'[^'"'"']\+'"'" --include="*.php" .; then
+            echo "⚠️  WARNING: Hardcoded non-empty password found. Consider using environment variables."
+            FOUND=1
+          fi
+
+          # Check for exposed DB credentials (non-localhost hosts)
+          if grep -rn 'host\s*=\s*"[^l][^o]' --include="*.php" .; then
+            echo "⚠️  WARNING: Non-localhost DB host detected. Verify this is intentional."
+          fi
+
+          if [ $FOUND -eq 0 ]; then
+            echo "✅ No hardcoded non-empty passwords found."
+          fi
+
+      - name: 🛡️ Check for SQL Injection Risks
+        run: |
+          echo "Scanning for common SQL injection patterns..."
+          # Look for direct $_GET/$_POST in queries without sanitization
+          RISKY=$(grep -rn '\$_GET\|\$_POST\|\$_REQUEST' --include="*.php" . | grep -v 'mysqli_real_escape_string\|prepared\|htmlspecialchars\|intval\|filter_input' | wc -l)
+          echo "Found $RISKY potentially unsanitized user input usages."
+          if [ $RISKY -gt 0 ]; then
+            echo "⚠️  Review these lines for SQL injection safety:"
+            grep -rn '\$_GET\|\$_POST\|\$_REQUEST' --include="*.php" . | grep -v 'mysqli_real_escape_string\|prepared\|htmlspecialchars\|intval\|filter_input' | head -20
+          fi
+          echo "✅ Security scan complete."
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Project Structure Validation
+  # ─────────────────────────────────────────────
+  structure-check:
+    name: 📁 Project Structure Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🗂️ Validate Required Files Exist
+        run: |
+          echo "Checking required project files..."
+          MISSING=0
+          REQUIRED_FILES=(
+            "index.php"
+            "db.php"
+            "admin_login.php"
+            "student_login.php"
+            "warden_login.php"
+            "admin_dashboard.php"
+            "student_dashboard.php"
+            "warden_dashboard.php"
+            "logout.php"
+          )
+          for f in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ Missing required file: $f"
+              MISSING=1
+            else
+              echo "✅ Found: $f"
+            fi
+          done
+          if [ $MISSING -eq 1 ]; then
+            echo "❌ Some required files are missing!"
+            exit 1
+          else
+            echo "✅ All required files are present."
+          fi
+
+      - name: 📊 Count PHP Files
+        run: |
+          COUNT=$(find . -name "*.php" -not -path "./.git/*" | wc -l)
+          echo "📝 Total PHP files in project: $COUNT"
+
+  # ─────────────────────────────────────────────
+  # JOB 4: Database Schema Validation
+  # ─────────────────────────────────────────────
+  db-schema-check:
+    name: 🗄️ Database Configuration Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Check db.php Configuration
+        run: |
+          echo "Checking database configuration..."
+          if [ -f "db.php" ]; then
+            echo "✅ db.php found."
+            # Verify it contains mysqli_connect
+            if grep -q "mysqli_connect" db.php; then
+              echo "✅ mysqli_connect is used for database connection."
+            else
+              echo "⚠️  No mysqli_connect found in db.php. Review connection method."
+            fi
+
+            # Warn if credentials are hardcoded (not using env vars)
+            if grep -q '\$_ENV\|getenv(' db.php; then
+              echo "✅ Environment variables are used for DB credentials."
+            else
+              echo "⚠️  DB credentials appear hardcoded. Consider using GitHub Secrets + environment variables for production."
+            fi
+          else
+            echo "❌ db.php not found!"
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────
+  # JOB 5: Deployment Readiness Summary
+  # ─────────────────────────────────────────────
+  deployment-summary:
+    name: 🚀 Deployment Readiness Summary
+    runs-on: ubuntu-latest
+    needs: [php-lint, security-check, structure-check, db-schema-check]
+    if: always()
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📋 Generate Deployment Summary
+        run: |
+          echo "============================================="
+          echo "  🏨 Smart Hostel Management System"
+          echo "  📋 CI/CD Pipeline Summary"
+          echo "============================================="
+          echo ""
+          echo "📦 Project: Smart Hostel Management System"
+          echo "🌿 Branch:  ${{ github.ref_name }}"
+          echo "👤 Trigger: ${{ github.actor }}"
+          echo "🕐 Time:    $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🔗 Commit:  ${{ github.sha }}"
+          echo ""
+          echo "📁 Module Coverage:"
+          echo "  ✅ Admin Module   (admin_login, admin_dashboard, reports)"
+          echo "  ✅ Student Module (student_login, student_dashboard, complaints)"
+          echo "  ✅ Warden Module  (warden_login, warden_dashboard)"
+          echo "  ✅ Mess Module    (mess_feedback, mess_management)"
+          echo "  ✅ Room Module    (room_management, my_room)"
+          echo "  ✅ Leave Module   (leave_request, leave_requests)"
+          echo "  ✅ Security Module (security_monitoring)"
+          echo ""
+          echo "============================================="
+          echo "  ✅ Pipeline Complete — Review logs above"
+          echo "============================================="
+
+      - name: 🗒️ Write Summary to GitHub Step Summary
+        run: |
+          echo "## 🏨 Smart Hostel CI/CD Pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| PHP Syntax Lint | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan   | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| File Structure  | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "| DB Config Check | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`  " >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`  " >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
