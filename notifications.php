@@ -1,3 +1,26 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone=$_SESSION['student_phone'];
+
+$student=mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s=mysqli_fetch_assoc($student);
+
+$data=mysqli_query($conn,
+
+"SELECT * FROM notifications
+
+WHERE student_id='".$s['id']."'
+OR student_id IS NULL
+
+ORDER BY created_at DESC");
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -149,101 +172,108 @@ color:#9ca3af;
 
 <!-- Notification 1 -->
 
-<div class="notification-card">
-
-<div class="icon pending">
-
-<i class="bi bi-clock-fill"></i>
-
-</div>
-
-<div class="notification-content">
-
-<h4>Leave Request Submitted</h4>
-
-<p>
-Your leave request has been sent to the warden.
-Current Status: Pending 🟡
-</p>
-
-<span class="time">2 Minutes Ago</span>
-
-</div>
-
-</div>
 
 <!-- Notification 2 -->
 
-<div class="notification-card">
 
-<div class="icon success">
-
-<i class="bi bi-check-circle-fill"></i>
-
-</div>
-
-<div class="notification-content">
-
-<h4>Complaint Resolved</h4>
-
-<p>
-Your room maintenance complaint has been resolved successfully.
-</p>
-
-<span class="time">1 Hour Ago</span>
-
-</div>
-
-</div>
 
 <!-- Notification 3 -->
 
-<div class="notification-card">
 
-<div class="icon info">
-
-<i class="bi bi-calendar-check-fill"></i>
-
-</div>
-
-<div class="notification-content">
-
-<h4>Attendance Updated</h4>
-
-<p>
-Today's hostel attendance has been marked successfully.
-</p>
-
-<span class="time">Today</span>
-
-</div>
-
-</div>
 
 <!-- Notification 4 -->
 
+<?php
+
+if(mysqli_num_rows($data)>0){
+
+while($row=mysqli_fetch_assoc($data)){
+
+$icon="info";
+$iconClass="info";
+
+if($row['type']=="Leave"){
+
+    $icon="clock-fill";
+    $iconClass="pending";
+
+}
+elseif($row['type']=="Complaint"){
+
+    $icon="check-circle-fill";
+    $iconClass="success";
+
+}
+elseif($row['type']=="Rejected"){
+
+    $icon="x-circle-fill";
+    $iconClass="reject";
+
+}
+
+?>
+
 <div class="notification-card">
 
-<div class="icon reject">
+<div class="icon <?php echo $iconClass; ?>">
 
-<i class="bi bi-x-circle-fill"></i>
+<i class="bi bi-<?php echo $icon; ?>"></i>
 
 </div>
 
 <div class="notification-content">
 
-<h4>Leave Request Rejected</h4>
+<h4>
+
+<?php echo $row['title']; ?>
+
+</h4>
 
 <p>
-Your previous leave request was rejected.
-Reason: Attendance shortage.
+
+<?php echo $row['message']; ?>
+
 </p>
 
-<span class="time">Yesterday</span>
+<span class="time">
+
+<?php echo $row['created_at']; ?>
+
+</span>
 
 </div>
 
 </div>
+
+<?php
+
+}
+
+}else{
+
+?>
+
+<div class="notification-card">
+
+<div class="notification-content">
+
+<h4>No Notifications</h4>
+
+<p>You don't have any notifications yet.</p>
+
+</div>
+
+</div>
+
+<?php
+
+}
+
+?>
+
+
+
+
 
 </div>
 

@@ -1,3 +1,25 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+if(!isset($_SESSION['student_phone'])){
+
+header("Location:student_login.php");
+
+exit();
+
+}
+
+$phone=$_SESSION['student_phone'];
+
+$query=mysqli_query($conn,"SELECT * FROM students WHERE phone='$phone'");
+
+$row=mysqli_fetch_assoc($query);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -362,15 +384,18 @@ background:#f59e0b;
 
 <nav class="navbar d-flex justify-content-between align-items-center">
 
-    <div class="logo">
+<div class="logo">
 
-        Smart Hostel
+Smart Hostel
 
-    </div>
+</div>
 
-    <a href="logout.php" class="logout-btn">
+<a href="logout.php" class="logout-btn">
+
 Logout
+
 </a>
+
 </nav>
 
 <!-- Hero -->
@@ -379,8 +404,8 @@ Logout
 
     <h1>
 
-        Welcome Back,
-        Shanmukopriya 👋
+       Welcome Back,
+<?php echo $row['name']; ?> 👋
 
     </h1>
 
@@ -619,13 +644,22 @@ Rate food quality and give feedback.
 
             <div class="col-md-10 profile-details">
 
-                <h3>Shanmukopriya</h3>
+                <h3><?php echo $row['name']; ?></h3>
 
-                <p>Department : CSE</p>
+<p>
+Department :
+<?php echo $row['department']; ?>
+</p>
 
-                <p>Room Number : A-204</p>
+<p>
+Room Number :
+<?php echo $row['room_number']; ?>
+</p>
 
-                <p>Status : Active Student</p>
+<p>
+Status :
+<?php echo $row['status']; ?>
+</p>
 
             </div>
 

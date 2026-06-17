@@ -1,3 +1,49 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+if(isset($_POST['save_attendance'])){
+
+    $date=date("Y-m-d");
+
+    foreach($_POST['status'] as $student_id=>$status){
+
+        $check=mysqli_query($conn,
+
+        "SELECT * FROM attendance
+        WHERE student_id='$student_id'
+        AND attendance_date='$date'");
+
+        if(mysqli_num_rows($check)==0){
+
+            mysqli_query($conn,
+
+            "INSERT INTO attendance
+            (student_id,attendance_date,status,marked_by)
+
+            VALUES
+
+            ('$student_id',
+            '$date',
+            '$status',
+            'Warden')");
+
+        }
+
+    }
+
+    $success=true;
+
+}
+
+$students=mysqli_query($conn,
+
+"SELECT * FROM students
+ORDER BY name");
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -141,8 +187,9 @@ font-weight:600;
 
 <div class="attendance-card">
 
-<table class="table table-bordered">
+<form method="POST">
 
+<table class="table table-bordered">
 <thead>
 
 <tr>
@@ -159,21 +206,29 @@ font-weight:600;
 
 <tbody>
 
+<?php
+
+while($row=mysqli_fetch_assoc($students)){
+
+?>
+
 <tr>
 
-<td>Shanmukopriya</td>
+<td><?php echo $row['name']; ?></td>
 
-<td>A-204</td>
+<td><?php echo $row['room_number']; ?></td>
 
 <td>
 
-<select class="form-select">
+<select
+name="status[<?php echo $row['id']; ?>]"
+class="form-select">
 
-<option>Present</option>
+<option value="Present">Present</option>
 
-<option>Absent</option>
+<option value="Absent">Absent</option>
 
-<option>Leave</option>
+<option value="Leave">Leave</option>
 
 </select>
 
@@ -181,111 +236,50 @@ font-weight:600;
 
 </tr>
 
-<tr>
+<?php
 
-<td>Sruthi</td>
+}
 
-<td>A-204</td>
-
-<td>
-
-<select class="form-select">
-
-<option>Present</option>
-
-<option>Absent</option>
-
-<option>Leave</option>
-
-</select>
-
-</td>
-
-</tr>
-
-<tr>
-
-<td>Hamsa</td>
-
-<td>A-204</td>
-
-<td>
-
-<select class="form-select">
-
-<option>Present</option>
-
-<option>Absent</option>
-
-<option>Leave</option>
-
-</select>
-
-</td>
-
-</tr>
-
-<tr>
-
-<td>Leena</td>
-
-<td>B-105</td>
-
-<td>
-
-<select class="form-select">
-
-<option>Present</option>
-
-<option>Absent</option>
-
-<option>Leave</option>
-
-</select>
-
-</td>
-
-</tr>
+?>
 
 </tbody>
 
 </table>
 
-<button class="submit-btn" onclick="saveAttendance()">
+<button
+type="submit"
+name="save_attendance"
+class="submit-btn">
 
 Save Attendance
 
 </button>
 
-<div class="success-box" id="successBox">
+<?php
+if(isset($success)){
+?>
+
+<div
+class="success-box"
+style="display:block;">
 
 ✅ Attendance marked successfully.
 
 </div>
 
-</div>
-
-</div>
-
-<script>
-
-function saveAttendance(){
-
-document.getElementById(
-"successBox"
-).style.display="block";
-
-setTimeout(()=>{
-
-document.getElementById(
-"successBox"
-).style.display="none";
-
-},3000);
-
+<?php
 }
+?>
 
-</script>
+</form>
+
+</div>
+
+</div>
+
+
+
+
 
 </body>
 

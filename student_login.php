@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("db.php");
 
 $message = "";
 
@@ -7,27 +8,46 @@ if(isset($_POST['send_otp'])){
 
     $phone = $_POST['phone'];
 
-    $otp = rand(1000,9999);
+    $check = mysqli_query($conn,
+    "SELECT * FROM students WHERE phone='$phone'");
 
-    $_SESSION['otp'] = $otp;
+    if(mysqli_num_rows($check)>0){
 
-    $message = "Demo OTP : " . $otp;
+        $_SESSION['phone']=$phone;
+
+        $otp = rand(1000,9999);
+
+        $_SESSION['otp']=$otp;
+
+        $message="Demo OTP : ".$otp;
+
+    }else{
+
+        $message="Phone Number Not Registered";
+
+    }
+
 }
 
 if(isset($_POST['verify_otp'])){
 
-    $entered_otp = $_POST['entered_otp'];
+    $entered_otp=$_POST['entered_otp'];
 
-    if($entered_otp == $_SESSION['otp']){
+    if($entered_otp==$_SESSION['otp']){
 
-        header("Location: student_dashboard.php");
+        $_SESSION['student_phone']
+        =$_SESSION['phone'];
+
+        header("Location:student_dashboard.php");
+
         exit();
 
     }else{
 
-        $message = "Invalid OTP";
+        $message="Invalid OTP";
 
     }
+
 }
 ?>
 
@@ -398,14 +418,19 @@ body{
         </button>
 
     </form>
-    <form onsubmit="showMessage(event)">
+    
 
     <div class="bottom-text">
 
-        Don't have an account?
-        <a href="student_register.php">Register</a>
+Don't have an account?
 
-    </div>
+<a href="student_register.php">
+
+Register
+
+</a>
+
+</div>
 
 </div>
 

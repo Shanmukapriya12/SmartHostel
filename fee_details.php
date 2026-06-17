@@ -1,3 +1,24 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone=$_SESSION['student_phone'];
+
+$student=mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s=mysqli_fetch_assoc($student);
+
+$fee=mysqli_query($conn,
+"SELECT * FROM fees WHERE student_id='".$s['id']."'");
+
+$f=mysqli_fetch_assoc($fee);
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -191,7 +212,7 @@ z-index:9999;
 
 <span>Hostel Fee Amount</span>
 
-<span>₹75,000</span>
+<span>₹<?php echo $f['total_fee']; ?></span>
 
 </div>
 
@@ -199,7 +220,7 @@ z-index:9999;
 
 <span>Room Type</span>
 
-<span>3 Sharing</span>
+<span><?php echo $s['room_number']; ?></span>
 
 </div>
 
@@ -207,7 +228,33 @@ z-index:9999;
 
 <span>Payment Status</span>
 
-<span class="paid">Paid ✅</span>
+<span class="paid">
+
+<?php echo $f['payment_status']; ?>
+
+</span>
+
+</div>
+
+<div class="info-row">
+
+<span>Paid Fee</span>
+
+<span>₹<?php echo $f['paid_fee']; ?></span>
+
+</div>
+
+<div class="info-row">
+
+<span>Balance Fee</span>
+
+<span>
+
+₹<?php echo $f['balance_fee']; ?>
+
+</span>
+
+</div>
 
 </div>
 
@@ -215,7 +262,11 @@ z-index:9999;
 
 <span>Payment Date</span>
 
-<span>15-Jun-2026</span>
+<span>
+
+<?php echo $f['last_payment_date']; ?>
+
+</span>
 
 </div>
 
@@ -223,7 +274,11 @@ z-index:9999;
 
 <span>Receipt Number</span>
 
-<span>HST2026001</span>
+<span>
+
+HST<?php echo $s['id']; ?>
+
+</span>
 
 </div>
 

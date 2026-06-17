@@ -1,33 +1,36 @@
 <?php
+session_start();
 
 $message = "";
 
 if(isset($_POST['login'])){
 
-    $email = $_POST['email'];
+    include("db.php");
 
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
-    /* Fixed Warden Credentials */
+    $result = mysqli_query($conn,
+    "SELECT * FROM wardens
+    WHERE email='$email'
+    AND password='$password'");
 
-    $correct_email = "warden@gmail.com";
+    if(mysqli_num_rows($result) > 0){
 
-    $correct_password = "warden123";
+        $_SESSION['warden_email'] = $email;
 
-    if($email == $correct_email && $password == $correct_password){
+        $message = "Login Successful";
 
-    $message = "Login Successful";
+        header("Location: warden_dashboard.php");
+        exit();
 
-    header("refresh:2;url=warden_dashboard.php");
+    }else{
 
-}else{
+        $message = "Invalid Warden Email or Password";
 
-    $message = "Invalid Warden Email or Password";
+    }
 
 }
-}
-?>
-
 ?>
 
 <!DOCTYPE html>

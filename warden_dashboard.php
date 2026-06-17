@@ -1,3 +1,16 @@
+<?php
+
+session_start();
+
+if(!isset($_SESSION['warden_email'])){
+
+header("Location:warden_login.php");
+
+exit();
+
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 

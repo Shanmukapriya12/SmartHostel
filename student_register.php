@@ -28,15 +28,23 @@ if(isset($_POST['register'])){
 
     $data = mysqli_query($conn,$query);
 
-    if($data){
+   if($data){
 
-        $message = "Registration Successful";
+echo "<script>
 
-    }else{
+alert('Registration Successful');
 
-        $message = "Registration Failed";
+window.location='student_login.php';
 
-    }
+</script>";
+
+exit();
+
+}else{
+
+$message="Registration Failed";
+
+}
 
 }
 
@@ -294,21 +302,36 @@ body{
 
     <h1>Student Registration</h1>
 
-    <p>
-        Create your hostel student account
-    </p>
+    <?php
 
-    <form onsubmit="showMessage(event)">
+if($message!=""){
+
+?>
+
+<div class="alert alert-success">
+
+<?php echo $message; ?>
+
+</div>
+
+<?php
+
+}
+
+?>
+
+    <form method="POST" action="">
 
         <!-- Name -->
 
         <div class="input-box">
 
             <i class="bi bi-person-fill"></i>
-
-            <input type="text"
-            class="form-control"
-            placeholder="Enter Full Name">
+<input type="text"
+class="form-control"
+name="name"
+placeholder="Enter Full Name"
+required>
 
         </div>
 
@@ -319,8 +342,10 @@ body{
             <i class="bi bi-envelope-fill"></i>
 
             <input type="email"
-            class="form-control"
-            placeholder="Enter Email">
+class="form-control"
+name="email"
+placeholder="Enter Email"
+required>
 
         </div>
 
@@ -331,8 +356,10 @@ body{
             <i class="bi bi-telephone-fill"></i>
 
             <input type="text"
-            class="form-control"
-            placeholder="Enter Phone Number">
+class="form-control"
+name="phone"
+placeholder="Enter Phone Number"
+required>
 
         </div>
 
@@ -342,7 +369,10 @@ body{
 
     <i class="bi bi-book-fill"></i>
 
-    <select class="form-control custom-select">
+    <<select
+class="form-control custom-select"
+name="department"
+required>
 
         <option value="" disabled selected>
             Select Department
@@ -376,15 +406,19 @@ body{
 
             <i class="bi bi-lock-fill"></i>
 
-            <input type="password"
-            class="form-control"
-            placeholder="Create Password">
-
+           <input type="password"
+class="form-control"
+name="password"
+placeholder="Create Password"
+required>
         </div>
 
         <!-- Register Button -->
 
-        <button class="register-btn">
+       <button
+type="submit"
+name="register"
+class="register-btn">
 
             Register Now
 
@@ -402,16 +436,6 @@ body{
 </div>
 
 </body>
-<script>
 
-function showMessage(event){
-
-    event.preventDefault();
-
-    alert("Registration Successfully!");
-
-}
-
-</script>
 
 </html>

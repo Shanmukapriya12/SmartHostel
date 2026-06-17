@@ -1,3 +1,39 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone = $_SESSION['student_phone'];
+
+$student = mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s = mysqli_fetch_assoc($student);
+
+$room = mysqli_query($conn,
+"SELECT * FROM rooms WHERE room_number='".$s['room_number']."'");
+
+$r = mysqli_fetch_assoc($room);
+
+/* If no room is found, create default values */
+if(!$r){
+
+    $r = [
+        "room_number" => "Not Allocated",
+        "block" => "-",
+        "floor" => "-",
+        "room_type" => "-",
+        "status" => "Not Allocated",
+        "capacity" => 0,
+        "available_beds" => 0,
+        "roommates" => "No Room Assigned"
+    ];
+
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,27 +84,87 @@ body{min-height:100vh;background:linear-gradient(135deg,#dbeafe,#eef2ff,#f8fafc)
 
 <div class="room-status">
 <div class="room-left">
-<h2>🏠 Room A-204</h2>
-<p>A Block • 2nd Floor • 3 Sharing Room</p>
-<span class="room-badge">Occupied</span>
+<h2>
+
+🏠 Room <?php echo $r['room_number']; ?>
+
+</h2>
+
+<p>
+
+<?php echo $r['block']; ?>
+
+•
+
+<?php echo $r['floor']; ?>
+
+•
+
+<?php echo $r['room_type']; ?>
+
+</p>
+
+<span class="room-badge">
+
+<?php echo $r['status']; ?>
+
+</span>
 </div>
 
 <div class="room-summary-card">
-<div class="summary-box"><h5>Total Beds</h5><span>3</span></div>
-<div class="summary-box"><h5>Occupied</h5><span>3</span></div>
+<div class="summary-box"><h5>Total Beds</h5><span>
+
+<?php echo $r['capacity']; ?>
+
+</span></div>
+<div class="summary-box"><h5>Occupied</h5><span>
+
+<?php echo $r['capacity']-$r['available_beds']; ?>
+
+</span></div>
 <div class="summary-box"><h5>Your Bed</h5><span>Bed 2</span></div>
-<div class="summary-box"><h5>Status</h5><span class="green">Active</span></div>
+<div class="summary-box"><h5>Status</h5><span class="green">
+
+<?php echo $s['status']; ?>
+
+</span></div>
 </div>
 </div>
 
 <div class="grid">
 <div class="card-box">
 <h4>Room Details</h4>
-<div class="detail"><span>Room Number</span><span>A-204</span></div>
-<div class="detail"><span>Block</span><span>A Block</span></div>
-<div class="detail"><span>Floor</span><span>2nd Floor</span></div>
-<div class="detail"><span>Capacity</span><span>3 Beds</span></div>
-<div class="detail"><span>Bed Number</span><span>Bed 2</span></div>
+<div class="detail"><span>Room Number</span>
+<span>
+
+<?php echo $r['room_number']; ?>
+
+</span>
+</div>
+<div class="detail"><span>Block</span>
+<span>
+
+<?php echo $r['block']; ?>
+
+</span>
+</div>
+<div class="detail"><span>Floor</span>
+<span>
+
+<?php echo $r['floor']; ?>
+
+</span>
+</div>
+<div class="detail"><span>Capacity</span>
+<span>
+
+<?php echo $r['capacity']; ?> Beds
+
+</span>
+</div>
+<div class="detail"><span>Bed Number</span>
+<span>Bed 2</span>
+</div>
 </div>
 
 <div class="card-box">
@@ -87,7 +183,13 @@ body{min-height:100vh;background:linear-gradient(135deg,#dbeafe,#eef2ff,#f8fafc)
 <div class="grid">
 <div class="card-box">
 <h4>Roommates</h4>
-<ul><li>Sruthi</li><li>Hamsa</li></ul>
+<ul>
+    <li>
+
+<?php echo $r['roommates']; ?>
+
+</li>
+</ul>
 </div>
 
 <div class="card-box">

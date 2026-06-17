@@ -1,4 +1,68 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone = $_SESSION['student_phone'];
+
+$student = mysqli_query($conn,"SELECT * FROM students WHERE phone='$phone'");
+
+$s = mysqli_fetch_assoc($student);
+
+if(isset($_POST['submit_leave'])){
+
+   $student_id = $s['id'];
+
+$from_date = $_POST['from_date'];
+
+$to_date = $_POST['to_date'];
+
+$leave_type = $_POST['leave_type'];
+
+$reason = $_POST['reason'];
+
+$destination = $_POST['destination'];
+
+$parent_phone = $_POST['parent_phone'];
+
+$notes = $_POST['notes'];
+
+$status = "Pending";
+
+  $student_name = $s['name'];
+
+$query = mysqli_query($conn,"INSERT INTO leave_requests
+(student_id,student_name,leave_type,from_date,to_date,reason,destination,parent_phone,notes,status)
+VALUES
+('$student_id','$student_name','$leave_type','$from_date','$to_date','$reason','$destination','$parent_phone','$notes','$status')");
+mysqli_query($conn,
+
+"INSERT INTO notifications
+(student_id,title,message,type,posted_by)
+
+VALUES(
+
+'$student_id',
+
+'Leave Request Submitted',
+
+'Your leave request has been sent to the warden. Current Status: Pending 🟡',
+
+'Leave',
+
+'System'
+
+)");
+
+$success=true;
+
+}
+
+
+?>
 <!DOCTYPE html>
+<html lang="en">
 <html lang="en">
 
 <head>
@@ -164,13 +228,91 @@ color:white;
 
 <div class="form-card">
 
-<form onsubmit="showSuccess(event)">
+<?php
+
+if(isset($success)){
+
+?>
+
+<div class="success-card">
+
+<div class="success-icon">
+
+✅
+
+</div>
+
+<h2 style="color:#16a34a;font-weight:700;">
+
+Leave Request Submitted Successfully
+
+</h2>
+
+<p style="font-size:17px;color:#64748b;margin-top:15px;">
+
+Your leave request has been sent to the warden successfully.
+
+</p>
+
+<div class="status-box">
+
+<b>Current Status :</b>
+
+Pending 🟡
+
+<br><br>
+
+Please wait for the warden's approval.
+
+</div>
+
+<div class="notification-box">
+
+🔔 A notification has been added to your Notifications page.
+
+You can check the approval status there anytime.
+
+</div>
+
+<a href="student_dashboard.php" class="dashboard-btn">
+
+Return to Dashboard
+
+</a>
+
+</div>
+
+<?php
+
+}else{
+
+?>
+
+<form method="POST">
 
 <div class="mb-3">
 
-<label class="form-label">Reason for Leave</label>
+<label class="form-label">Leave Type</label>
+
+<select
+name="leave_type"
+class="form-control"
+required>
+
+<option value="">Select Leave Type</option>
+
+<option value="Home Leave">Home Leave</option>
+
+<option value="Medical Leave">Medical Leave</option>
+
+<option value="Emergency Leave">Emergency Leave</option>
+
+<option value="College Leave">College Leave</option>
+
+</select>
 
 <input type="text"
+name="reason"
 class="form-control"
 placeholder="Enter Reason"
 required>
@@ -184,6 +326,7 @@ required>
 <label class="form-label">From Date</label>
 
 <input type="date"
+name="from_date"
 class="form-control"
 required>
 
@@ -194,6 +337,7 @@ required>
 <label class="form-label">To Date</label>
 
 <input type="date"
+name="to_date"
 class="form-control"
 required>
 
@@ -206,6 +350,7 @@ required>
 <label class="form-label">Destination</label>
 
 <input type="text"
+name="destination"
 class="form-control"
 placeholder="Enter Destination"
 required>
@@ -217,6 +362,7 @@ required>
 <label class="form-label">Parent Phone Number</label>
 
 <input type="tel"
+name="parent_phone"
 class="form-control"
 placeholder="Enter Parent Phone Number"
 required>
@@ -228,13 +374,16 @@ required>
 <label class="form-label">Additional Notes</label>
 
 <textarea
+name="notes"
 class="form-control"
 rows="4"
 placeholder="Optional"></textarea>
 
 </div>
 
-<button type="submit"
+<button
+type="submit"
+name="submit_leave"
 class="submit-btn">
 
 Submit Leave Request
@@ -243,70 +392,15 @@ Submit Leave Request
 
 </form>
 
-</div>
-
-</div>
-
-<script>
-
-function showSuccess(event){
-
-event.preventDefault();
-
-document.querySelector(".form-card").innerHTML = `
-
-<div class="success-card">
-
-<div class="success-icon">
-✅
-</div>
-
-<h2 style="color:#16a34a;font-weight:700;">
-
-Leave Request Submitted Successfully
-
-</h2>
-
-<p style="
-font-size:17px;
-color:#64748b;
-margin-top:15px;
-">
-
-Your leave request has been sent to the warden.
-
-</p>
-
-<div class="status-box">
-
-<b>Current Status:</b> Pending 🟡
-
-<br><br>
-
-Please wait for the warden's response.
-
-</div>
-
-<div class="notification-box">
-
-🔔 A notification will be generated once the warden approves or rejects your request.
-
-</div>
-
-<a href="student_dashboard.php"
-class="dashboard-btn">
-
-Return to Dashboard
-
-</a>
-
-</div>
-
-`;
+<?php
 
 }
 
-</script>
+?>
+
+</div>
+
+</div>
 
 </body>
 

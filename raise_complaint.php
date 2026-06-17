@@ -1,3 +1,47 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone=$_SESSION['student_phone'];
+
+$student=mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s=mysqli_fetch_assoc($student);
+
+if(isset($_POST['submit'])){
+
+$name=$_POST['name'];
+
+$room=$_POST['room'];
+
+$title=$_POST['title'];
+
+$category=$_POST['category'];
+
+$description=$_POST['description'];
+
+$date=date("Y-m-d");
+
+mysqli_query($conn,"INSERT INTO complaints
+(student_id,room_number,complaint_type,description,complaint_date,status)
+VALUES
+('".$s['id']."','$room','$category','$description','$date','Pending')");
+
+echo "<script>
+
+alert('Complaint Submitted Successfully');
+
+window.location='complaint_history.php';
+
+</script>";
+
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -283,14 +327,16 @@ textarea.form-control{
 
         </div>
 
-        <form action="complaint_history.php">
+        <form method="POST">
 
             <label>Student Name</label>
 
-            <input type="text"
-            class="form-control"
-            placeholder="Enter Student Name"
-            required>
+            <input
+type="text"
+class="form-control"
+name="name"
+value="<?php echo $s['name']; ?>"
+readonly>
 
             <label>Room Number</label>
 
@@ -301,14 +347,19 @@ textarea.form-control{
 
             <label>Complaint Title</label>
 
-            <input type="text"
-            class="form-control"
-            placeholder="Brief description of the issue"
-            required>
+            <input
+type="text"
+class="form-control"
+name="title"
+placeholder="Brief description of the issue"
+required>
 
             <label>Category</label>
 
-            <select class="form-select" required>
+           <select
+class="form-select"
+name="category"
+required>
 
                 <option value="">Select complaint category</option>
 
@@ -325,10 +376,11 @@ textarea.form-control{
 
             <label>Description</label>
 
-            <textarea
-            class="form-control"
-            placeholder="Provide detailed information about the issue..."
-            required></textarea>
+           <textarea
+class="form-control"
+name="description"
+placeholder="Provide detailed information about the issue..."
+required></textarea>
 
             <label>Upload Image (Optional)</label>
 
@@ -354,7 +406,10 @@ textarea.form-control{
 
                 </button>
 
-                <button type="submit" class="submit-btn">
+                <button
+type="submit"
+name="submit"
+class="submit-btn">
 
                     Submit Complaint
 

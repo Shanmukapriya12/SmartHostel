@@ -1,3 +1,45 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone=$_SESSION['student_phone'];
+
+$student=mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s=mysqli_fetch_assoc($student);
+
+$id=$s['id'];
+
+$total=mysqli_num_rows(mysqli_query($conn,
+"SELECT * FROM attendance WHERE student_id='$id'"));
+
+$present=mysqli_num_rows(mysqli_query($conn,
+"SELECT * FROM attendance WHERE student_id='$id' AND status='Present'"));
+
+$absent=mysqli_num_rows(mysqli_query($conn,
+"SELECT * FROM attendance WHERE student_id='$id' AND status='Absent'"));
+
+$leave=mysqli_num_rows(mysqli_query($conn,
+"SELECT * FROM attendance WHERE student_id='$id' AND status='Leave'"));
+
+$percentage=0;
+
+if($total>0){
+
+$percentage=round(($present/$total)*100);
+
+}
+
+$data=mysqli_query($conn,
+"SELECT * FROM attendance
+WHERE student_id='$id'
+ORDER BY attendance_date DESC");
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -145,7 +187,7 @@ font-weight:600;
 
 <div class="card-box">
 
-<h2>92%</h2>
+<h2><?php echo $percentage; ?>%</h2>
 
 <p>Attendance</p>
 
@@ -153,7 +195,7 @@ font-weight:600;
 
 <div class="card-box">
 
-<h2>28</h2>
+<h2><?php echo $present; ?></h2>
 
 <p>Present Days</p>
 
@@ -161,7 +203,7 @@ font-weight:600;
 
 <div class="card-box">
 
-<h2>2</h2>
+<h2><?php echo $absent; ?></h2>
 
 <p>Absent Days</p>
 
@@ -169,7 +211,7 @@ font-weight:600;
 
 <div class="card-box">
 
-<h2>1</h2>
+<h2><?php echo $leave; ?></h2>
 
 <p>Leave Days</p>
 
@@ -199,59 +241,45 @@ font-weight:600;
 
 </thead>
 
-<tbody>
+<?php
+
+while($row=mysqli_fetch_assoc($data)){
+
+$class="status-present";
+
+if($row['status']=="Absent"){
+
+$class="status-absent";
+
+}
+
+elseif($row['status']=="Leave"){
+
+$class="status-leave";
+
+}
+
+?>
 
 <tr>
 
-<td>01-06-2026</td>
+<td><?php echo $row['attendance_date']; ?></td>
 
-<td class="status-present">Present</td>
+<td class="<?php echo $class; ?>">
 
-<td>Priya Madam</td>
+<?php echo $row['status']; ?>
 
-</tr>
+</td>
 
-<tr>
-
-<td>02-06-2026</td>
-
-<td class="status-present">Present</td>
-
-<td>Priya Madam</td>
+<td><?php echo $row['marked_by']; ?></td>
 
 </tr>
 
-<tr>
+<?php
 
-<td>03-06-2026</td>
+}
 
-<td class="status-absent">Absent</td>
-
-<td>Priya Madam</td>
-
-</tr>
-
-<tr>
-
-<td>04-06-2026</td>
-
-<td class="status-present">Present</td>
-
-<td>Priya Madam</td>
-
-</tr>
-
-<tr>
-
-<td>05-06-2026</td>
-
-<td class="status-leave">Leave</td>
-
-<td>Priya Madam</td>
-
-</tr>
-
-</tbody>
+?>
 
 </table>
 

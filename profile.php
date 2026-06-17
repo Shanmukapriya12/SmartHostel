@@ -1,3 +1,23 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone=$_SESSION['student_phone'];
+
+$student=mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s=mysqli_fetch_assoc($student);
+
+$profile=mysqli_query($conn,
+"SELECT * FROM student_profiles WHERE student_id='".$s['id']."'");
+
+$p=mysqli_fetch_assoc($profile);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -183,13 +203,13 @@ class="profile-img">
 
 <div class="profile-name">
 
-Shanmukopriya
+<?php echo $s['name']; ?>
 
 </div>
 
 <div class="profile-role">
 
-Hostel Student
+<?php echo $s['status']; ?>
 
 </div>
 
@@ -199,42 +219,58 @@ Hostel Student
 
 <div class="detail-box">
 <div class="detail-title">Register Number</div>
-<div class="detail-value">23CSE001</div>
+<?php echo $p['register_number']; ?>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Department</div>
-<div class="detail-value">Computer Science Engineering</div>
+<div class="detail-value">
+
+<?php echo $s['department']; ?>
+
+</div>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Year</div>
-<div class="detail-value">3rd Year</div>
+<?php echo $p['year']; ?>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Email</div>
-<div class="detail-value">shannu@example.com</div>
+<div class="detail-value">
+
+<?php echo $s['email']; ?>
+
+</div>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Phone Number</div>
-<div class="detail-value">9876543210</div>
+<div class="detail-value">
+
+<?php echo $s['phone']; ?>
+
+</div>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Room Number</div>
-<div class="detail-value">A-204</div>
+<div class="detail-value">
+
+<?php echo $s['room_number']; ?>
+
+</div>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Hostel Block</div>
-<div class="detail-value">A Block</div>
+<?php echo $p['hostel_block']; ?>
 </div>
 
 <div class="detail-box">
 <div class="detail-title">Parent Contact</div>
-<div class="detail-value">9876543211</div>
+<?php echo $s['phone']; ?>
 </div>
 
 </div>

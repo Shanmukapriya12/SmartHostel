@@ -1,3 +1,23 @@
+<?php
+
+session_start();
+
+include("db.php");
+
+$phone = $_SESSION['student_phone'];
+
+$student = mysqli_query($conn,
+"SELECT * FROM students WHERE phone='$phone'");
+
+$s = mysqli_fetch_assoc($student);
+
+$complaints = mysqli_query($conn,
+"SELECT * FROM complaints
+WHERE student_id='".$s['id']."'
+ORDER BY complaint_date DESC");
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -254,144 +274,87 @@ body{
 
     <!-- Complaint 1 -->
 
-    <div class="history-card">
-
-        <div class="top-row">
-
-            <div class="complaint-title">
-
-                Fan Not Working
-
-            </div>
-
-            <div class="status pending">
-
-                Pending
-
-            </div>
-
-        </div>
-
-        <div class="desc">
-
-            Ceiling fan in Room A-204 is not rotating properly
-            and making unusual noise.
-
-        </div>
-
-        <div class="bottom-row">
-
-            <div>
-
-                Complaint ID : #CMP102
-
-            </div>
-
-            <div>
-
-                Submitted : Today
-
-            </div>
-
-        </div>
-
-    </div>
+    
 
     <!-- Complaint 2 -->
 
-    <div class="history-card">
-
-        <div class="top-row">
-
-            <div class="complaint-title">
-
-                Water Leakage
-
-            </div>
-
-            <div class="status resolved">
-
-                Resolved
-
-            </div>
-
-        </div>
-
-        <div class="desc">
-
-            Water leakage issue near bathroom sink was repaired.
-
-        </div>
-
-        <div class="bottom-row">
-
-            <div>
-
-                Complaint ID : #CMP089
-
-            </div>
-
-            <div>
-
-                Submitted : 2 Days Ago
-
-            </div>
-
-        </div>
-
-    </div>
+    
 
     <!-- Complaint 3 -->
 
-    <div class="history-card">
-
-        <div class="top-row">
-
-            <div class="complaint-title">
-
-                WiFi Connectivity Issue
-
-            </div>
-
-            <div class="status processing">
-
-                Processing
-
-            </div>
-
-        </div>
-
-        <div class="desc">
-
-            Internet speed is very slow in Block A hostel rooms.
-
-        </div>
-
-        <div class="bottom-row">
-
-            <div>
-
-                Complaint ID : #CMP076
-
-            </div>
-
-            <div>
-
-                Submitted : Yesterday
-
-            </div>
-
-        </div>
-
-    </div>
-
+    
     <!-- Button -->
+     <?php
 
-    <a href="raise_complaint.php" class="new-btn">
+while($row=mysqli_fetch_assoc($complaints)){
 
-        Submit New Complaint
+$statusClass="pending";
 
-    </a>
+if($row['status']=="Resolved"){
+
+$statusClass="resolved";
+
+}
+
+elseif($row['status']=="Processing"){
+
+$statusClass="processing";
+
+}
+
+?>
+
+<div class="history-card">
+
+<div class="top-row">
+
+<div class="complaint-title">
+
+<?php echo $row['complaint_type']; ?>
+
+</div>
+
+<div class="status <?php echo $statusClass; ?>">
+
+<?php echo $row['status']; ?>
+
+</div>
+
+</div>
+
+<div class="desc">
+
+<?php echo $row['description']; ?>
+
+</div>
+
+<div class="bottom-row">
+
+<div>
+
+Complaint ID :
+#CMP<?php echo $row['id']; ?>
+
+</div>
+
+<div>
+
+Submitted :
+<?php echo $row['complaint_date']; ?>
+
+</div>
+
+</div>
+
+</div>
+
+<?php
+
+}
+
+?>
+
+    
 
 </div>
 
