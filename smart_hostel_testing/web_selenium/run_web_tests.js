@@ -55,12 +55,17 @@ class WebTestRunner {
 
     const builder = new Builder().forBrowser('chrome').setChromeOptions(opts);
 
-    // If a nested chromedriver exists (e.g. from root package), we can register its service path
-    const localChromedriverWin = path.join(__dirname, '..', '..', 'node_modules', 'chromedriver', 'lib', 'chromedriver', 'chromedriver.exe');
-    if (process.platform === 'win32' && fs.existsSync(localChromedriverWin)) {
-      console.log(`Found local chromedriver executable: ${localChromedriverWin}`);
-      const service = new chrome.ServiceBuilder(localChromedriverWin);
+    // Detect chromedriver from npm package — supports both Windows (.exe) and Linux/macOS
+    const chromedriverBase = path.join(__dirname, '..', '..', 'node_modules', 'chromedriver', 'lib', 'chromedriver', 'chromedriver');
+    const localChromedriverWin = chromedriverBase + '.exe';
+    const localChromedriverUnix = chromedriverBase;
+    const localChromedriver = process.platform === 'win32' ? localChromedriverWin : localChromedriverUnix;
+    if (fs.existsSync(localChromedriver)) {
+      console.log(`Found local chromedriver executable: ${localChromedriver}`);
+      const service = new chrome.ServiceBuilder(localChromedriver);
       builder.setChromeService(service);
+    } else {
+      console.log(`Local chromedriver not found at ${localChromedriver}, relying on PATH/Selenium Manager.`);
     }
 
     this.driver = await builder.build();

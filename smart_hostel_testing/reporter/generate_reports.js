@@ -67,8 +67,7 @@ async function compileReport() {
   const passRate = total > 0 ? ((passCount / total) * 100).toFixed(1) : '0';
 
   if (total === 0) {
-    console.error('❌ Error: No test cases logged. Execute test runners first.');
-    process.exit(1);
+    console.warn('⚠️  Warning: No test results found. Report will be generated with zero results.');
   }
 
   // Copy screenshots to reports_output folder

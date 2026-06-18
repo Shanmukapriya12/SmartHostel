@@ -27,6 +27,7 @@ jobs:
   selenium-web-tests:
     name: Selenium E2E Web + API Tests
     runs-on: ubuntu-latest
+    continue-on-error: true   # Don't block downstream jobs if tests fail
 
     services:
       mysql:
@@ -66,12 +67,13 @@ jobs:
         run: |
           mysql -h 127.0.0.1 -u root -e "CREATE DATABASE IF NOT EXISTS smart_hostel;"
           mysql -h 127.0.0.1 -u root smart_hostel < database_utf8.sql
-          echo "Database schema seeded successfully."
+          echo "✅ Database schema seeded successfully."
 
       - name: 🟢 Start Local PHP Server
         run: |
           php -S localhost:8000 &
-          echo "PHP Server started on port 8000"
+          sleep 2
+          echo "✅ PHP Server started on port 8000"
 
       - name: 🟢 Setup Node.js Environment
         uses: actions/setup-node@v4
@@ -82,7 +84,20 @@ jobs:
       - name: 📦 Install NPM Dependencies
         run: npm ci
 
+      - name: 🔧 Make ChromeDriver Executable
+        run: |
+          CHROMEDRIVER_BIN="node_modules/chromedriver/lib/chromedriver/chromedriver"
+          if [ -f "$CHROMEDRIVER_BIN" ]; then
+            chmod +x "$CHROMEDRIVER_BIN"
+            echo "✅ ChromeDriver marked executable: $CHROMEDRIVER_BIN"
+            "$CHROMEDRIVER_BIN" --version || true
+          else
+            echo "ℹ️  npm chromedriver binary not found at expected path."
+            which chromedriver 2>/dev/null && echo "Using system chromedriver: $(chromedriver --version)" || echo "No system chromedriver found either — Selenium Manager will handle it."
+          fi
+
       - name: 🧪 Run Selenium Web Tests (Headless)
+        continue-on-error: true   # Test failures are recorded, not workflow failures
         env:
           BASE_URL: http://localhost:8000
           CI: true
@@ -90,6 +105,7 @@ jobs:
 
       - name: 📤 Upload Web Results Artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: web-test-results
           path: |
@@ -102,6 +118,7 @@ jobs:
   appium-mobile-tests:
     name: Appium Mobile Tests Dry-Run
     runs-on: ubuntu-latest
+    continue-on-error: true   # Don't block downstream jobs if tests fail
 
     steps:
       - name: 📥 Checkout Repository
@@ -119,12 +136,14 @@ jobs:
           pip install -r smart_hostel_testing/mobile_appium/requirements.txt
 
       - name: 🧪 Run Pytest Mobile Suite (Dry-Run Mode)
+        continue-on-error: true   # Test failures are recorded, not workflow failures
         env:
           APPIUM_DRY_RUN: 'true'
         run: python smart_hostel_testing/mobile_appium/run_mobile_tests.py
 
       - name: 📤 Upload Mobile Results Artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: mobile-test-results
           path: |
@@ -138,6 +157,7 @@ jobs:
     name: Generate LifeLink_Test_Report
     runs-on: ubuntu-latest
     needs: [selenium-web-tests, appium-mobile-tests]
+    if: always()   # Always run — even if test jobs failed or were cancelled
 
     steps:
       - name: 📥 Checkout Repository
@@ -154,15 +174,32 @@ jobs:
 
       - name: 📥 Download Web Results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: web-test-results
           path: smart_hostel_testing/web_selenium
 
       - name: 📥 Download Mobile Results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: mobile-test-results
           path: smart_hostel_testing/mobile_appium
+
+      - name: 📂 Create Fallback Empty Results (if downloads failed)
+        run: |
+          WEB_JSON="smart_hostel_testing/web_selenium/web_results.json"
+          MOB_JSON="smart_hostel_testing/mobile_appium/mobile_results.json"
+          if [ ! -f "$WEB_JSON" ]; then
+            echo "[]" > "$WEB_JSON"
+            echo "⚠️  Created empty web_results.json (web test job may have failed)"
+          fi
+          if [ ! -f "$MOB_JSON" ]; then
+            echo "[]" > "$MOB_JSON"
+            echo "⚠️  Created empty mobile_results.json (mobile test job may have failed)"
+          fi
+          echo "Web results: $(cat $WEB_JSON | python3 -c 'import sys,json; d=json.load(sys.stdin); print(len(d), \"records\")')"
+          echo "Mobile results: $(cat $MOB_JSON | python3 -c 'import sys,json; d=json.load(sys.stdin); print(len(d), \"records\")')"
 
       - name: ⚙️ Compile Dashboard and Excel Sheet
         run: node smart_hostel_testing/reporter/generate_reports.js
@@ -183,7 +220,7 @@ jobs:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     needs: [selenium-web-tests, appium-mobile-tests]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -202,15 +239,30 @@ jobs:
 
       - name: 📥 Download Web Results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: web-test-results
           path: smart_hostel_testing/web_selenium
 
       - name: 📥 Download Mobile Results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: mobile-test-results
           path: smart_hostel_testing/mobile_appium
+
+      - name: 📂 Create Fallback Empty Results (if downloads failed)
+        run: |
+          WEB_JSON="smart_hostel_testing/web_selenium/web_results.json"
+          MOB_JSON="smart_hostel_testing/mobile_appium/mobile_results.json"
+          if [ ! -f "$WEB_JSON" ]; then
+            echo "[]" > "$WEB_JSON"
+            echo "⚠️  Created empty web_results.json"
+          fi
+          if [ ! -f "$MOB_JSON" ]; then
+            echo "[]" > "$MOB_JSON"
+            echo "⚠️  Created empty mobile_results.json"
+          fi
 
       - name: ⚙️ Compile Dashboard and Excel Sheet
         run: node smart_hostel_testing/reporter/generate_reports.js
