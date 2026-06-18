@@ -1,3 +1,9 @@
+<?php
+session_start();
+if(!isset($_SESSION['warden_email'])){
+    die("<!DOCTYPE html><html><head><title>Access Denied</title></head><body style='font-family:sans-serif;text-align:center;padding:80px;'><h2 style='color:#dc2626;'>&#128274; Access Denied</h2><p>This page is restricted to Warden login only.</p><a href='warden_login.php' style='color:#2563eb;'>Go to Warden Login</a></body></html>");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

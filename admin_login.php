@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 $message = "";
 
 if(isset($_POST['login'])){
@@ -17,6 +19,9 @@ if(isset($_POST['login'])){
     if($email == $correct_email && $password == $correct_password){
 
     $message = "Admin Login Successful";
+
+    $_SESSION['admin'] = true;
+    $_SESSION['admin_email'] = $email;
 
     header("Location: admin_dashboard.php");
     exit();

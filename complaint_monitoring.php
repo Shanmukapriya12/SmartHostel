@@ -1,3 +1,9 @@
+<?php
+session_start();
+if(!isset($_SESSION['admin'])){
+    die("<!DOCTYPE html><html><head><title>Access Denied</title></head><body style='font-family:sans-serif;text-align:center;padding:80px;'><h2 style='color:#dc2626;'>&#128274; Access Denied</h2><p>This page is restricted to Admin login only.</p><a href='admin_login.php' style='color:#2563eb;'>Go to Admin Login</a></body></html>");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
