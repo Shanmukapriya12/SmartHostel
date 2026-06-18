@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏨 Smart Hostel QA Test Report Dashboard</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 50%, #0c1220 100%);
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(99, 102, 241, 0.4);
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.25);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Glassmorphism Header */
+    header {
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-logo i {
+      font-size: 2.2rem;
+      color: var(--primary);
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+    }
+
+    .header-title h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .download-btn {
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: var(--transition);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Grid layout for stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: var(--transition);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+    }
+
+    .stat-card.primary::before { background: var(--primary); }
+    .stat-card.success::before { background: var(--success); }
+    .stat-card.danger::before { background: var(--danger); }
+    .stat-card.warning::before { background: var(--warning); }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--card-hover-border);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    .stat-info h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-info .stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .stat-card.primary .stat-icon { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+    .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stat-card.danger .stat-icon { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+    /* Dashboard Main Split Layout */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    @media(min-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    /* Section Panels */
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: flex-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 1rem;
+    }
+
+    .panel-header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Interactive Screenshot Carousel */
+    .carousel-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .carousel-viewer {
+      width: 100%;
+      height: 420px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: #080c14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .carousel-viewer img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: var(--transition);
+    }
+
+    .carousel-viewer .tag-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+    }
+
+    .carousel-viewer .highlight-hint {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .carousel-controls {
+      display: flex;
+      gap: 0.6rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .carousel-controls::-webkit-scrollbar {
+      height: 4px;
+    }
+    .carousel-controls::-webkit-scrollbar-thumb {
+      background-color: var(--primary);
+      border-radius: 4px;
+    }
+
+    .carousel-thumb {
+      width: 110px;
+      height: 75px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      opacity: 0.5;
+      transition: var(--transition);
+    }
+
+    .carousel-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-thumb.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+      opacity: 1;
+    }
+
+    .carousel-thumb:hover {
+      opacity: 0.85;
+    }
+
+    .carousel-thumb .thumb-tag {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      font-size: 0.65rem;
+      text-align: center;
+      padding: 2px 0;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Filter Engine & Search */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      background: rgba(17, 24, 39, 0.4);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem 0.7rem 2.5rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .select-filter {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-width: 140px;
+      transition: var(--transition);
+    }
+
+    .select-filter:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Custom Table Styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(30, 41, 59, 0.6);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    td {
+      padding: 0.95rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .badge.pass { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25); }
+    .badge.fail { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.25); }
+    .badge.prio-critical { color: #f43f5e; font-weight: 800; }
+    .badge.prio-high { color: #f59e0b; }
+    .badge.prio-medium { color: #3b82f6; }
+    .badge.prio-low { color: #94a3b8; }
+
+    /* Category pass chart block */
+    .chart-box {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .category-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .category-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .category-bar-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .category-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Modal styling */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      padding: 2rem;
+      position: relative;
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-right: 2rem;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .modal-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .modal-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .modal-meta-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .modal-error-block {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 1.2rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: #fca5a5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .modal-screenshot-block {
+      text-align: center;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: #080c14;
+      max-height: 400px;
+    }
+
+    .modal-screenshot-block img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
+
+    /* Keyframe Animations */
+    @keyframes slideDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+    }
+
+    .pagination-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="header-logo">
+        <i class="fa-solid fa-hotel"></i>
+        <div class="header-title">
+          <h1>Smart Hostel</h1>
+          <p>E2E Automation Testing Dashboard • Selenium (NodeJS) & Appium (Python)</p>
+        </div>
+      </div>
+      <div>
+        <a id="excel-dl-btn" href="SmartHostel_Test_Report.xlsx" class="download-btn" download>
+          <i class="fa-solid fa-file-excel"></i> Download Excel Report
+        </a>
+      </div>
+    </header>
+
+    <!-- METRIC STATS -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-info">
+          <h3>Total Test Cases</h3>
+          <div id="metric-total" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-vial"></i>
+        </div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-info">
+          <h3>Passed Cases</h3>
+          <div id="metric-passed" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-info">
+          <h3>Failed Cases</h3>
+          <div id="metric-failed" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-info">
+          <h3>Success Pass Rate</h3>
+          <div id="metric-rate" class="stat-val">0%</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-layout">
+      
+      <!-- LEFT PANEL: TEST CAROUSEL VIEW -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-images"></i> Visual Interface Validations</h2>
+        </div>
+        <div class="carousel-container">
+          <div class="carousel-viewer" id="carousel-viewer">
+            <div class="tag-badge" id="carousel-tag">Select a Thumbnail</div>
+            <img id="carousel-img" src="" alt="Screenshot viewer">
+            <div class="highlight-hint" id="carousel-highlight-hint" style="display: none;">
+              <i class="fa-solid fa-circle-info"></i> Interactive element outlined in Red
+            </div>
+          </div>
+          <div class="carousel-controls" id="carousel-thumbs">
+            <!-- Thumbnails inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: CATEGORY METRICS & PLATFORM SUMMARY -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Category Distribution</h2>
+        </div>
+        <div class="chart-box" id="category-charts">
+          <!-- Dynamically inserted bars -->
+        </div>
+        <div class="panel-header" style="margin-top: 2rem; margin-bottom: 1rem;">
+          <h2><i class="fa-solid fa-network-wired"></i> Execution Stats</h2>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Web Framework:</span>
+            <span style="font-weight: 600;">Selenium WebDriver (Node.js)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">App Framework:</span>
+            <span style="font-weight: 600;">Appium Client (Python)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Execution Time:</span>
+            <span id="metric-duration" style="font-weight: 600;">0s</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Execution Date:</span>
+            <span id="metric-date" style="font-weight: 600;">-</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FULL LOGS VIEW PANEL -->
+    <div class="panel" style="margin-bottom: 3rem;">
+      <div class="panel-header" style="justify-content: space-between; display: flex; flex-wrap: wrap; gap: 1rem;">
+        <h2><i class="fa-solid fa-clipboard-list"></i> Detailed Execution Logs</h2>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Click on any row to view full details / error stack trace.</div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-box" class="search-input" placeholder="Search by test case name or remarks...">
+        </div>
+        <select id="filter-module" class="select-filter">
+          <option value="">All Modules</option>
+        </select>
+        <select id="filter-category" class="select-filter">
+          <option value="">All Categories</option>
+          <option value="Functional">Functional</option>
+          <option value="UI/UX">UI/UX</option>
+          <option value="Validation">Validation</option>
+          <option value="Unit">Unit</option>
+        </select>
+        <select id="filter-status" class="select-filter">
+          <option value="">All Statuses</option>
+          <option value="PASS">Pass</option>
+          <option value="FAIL">Fail</option>
+        </select>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">Test ID</th>
+              <th>Module</th>
+              <th>Category</th>
+              <th>Test Case Name</th>
+              <th style="width: 100px; text-align: center;">Priority</th>
+              <th style="width: 100px; text-align: center;">Status</th>
+              <th style="width: 90px; text-align: center;">Duration</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table-body">
+            <!-- Dynamic rows inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <div class="page-info" id="page-info">Showing 0 to 0 of 0 test cases</div>
+        <div class="pagination-btns">
+          <button class="page-btn" id="prev-page-btn" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+          <button class="page-btn" id="next-page-btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- DETAILS MODAL -->
+  <div class="modal" id="details-modal">
+    <div class="modal-content">
+      <button class="close-modal-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title" id="modal-title">TC-001 - Test Case Title</div>
+      <div class="modal-body">
+        
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Module</span>
+            <span class="modal-meta-value" id="modal-module">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Category</span>
+            <span class="modal-meta-value" id="modal-category">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Priority</span>
+            <span class="modal-meta-value" id="modal-priority">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Duration</span>
+            <span class="modal-meta-value" id="modal-duration">-</span>
+          </div>
+        </div>
+
+        <div class="modal-meta-item" style="gap: 0.4rem;">
+          <span class="modal-meta-label">Remarks</span>
+          <span style="font-weight: 500;" id="modal-remarks">-</span>
+        </div>
+
+        <div id="modal-error-container" style="display: none; flex-direction: column; gap: 0.4rem;">
+          <span class="modal-meta-label" style="color: var(--danger);">Error Stack Trace</span>
+          <div class="modal-error-block" id="modal-error-trace"></div>
+        </div>
+
+        <div id="modal-screenshot-container" style="display: none; flex-direction: column; gap: 0.4rem;">
+          <span class="modal-meta-label">Execution Screenshot</span>
+          <div class="modal-screenshot-block">
+            <img id="modal-screenshot-img" src="" alt="Test Screenshot">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA LAYER INJECTED BY REPORTER -->
+  <script>
+    // Placeholder to be replaced with JSON string by Node.js generator script
+    const TEST_RESULTS = {{TEST_RESULTS_JSON}};
+    
+    // Global State
+    let filteredResults = [...TEST_RESULTS];
+    let currentPage = 1;
+    const itemsPerPage = 15;
+    
+    // Initialize Dashboard
+    function init() {
+      // Calculate Stats
+      const total = TEST_RESULTS.length;
+      const passed = TEST_RESULTS.filter(r => r.status === 'PASS').length;
+      const failed = TEST_RESULTS.filter(r => r.status === 'FAIL').length;
+      const rate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+      
+      const totalDuration = TEST_RESULTS.reduce((acc, r) => acc + (r.duration || 0), 0).toFixed(2);
+      
+      document.getElementById('metric-total').innerText = total;
+      document.getElementById('metric-passed').innerText = passed;
+      document.getElementById('metric-failed').innerText = failed;
+      document.getElementById('metric-rate').innerText = `${rate}%`;
+      document.getElementById('metric-duration').innerText = `${totalDuration}s`;
+      document.getElementById('metric-date').innerText = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      
+      // Setup Modules filter options
+      const modules = [...new Set(TEST_RESULTS.map(r => r.module))].sort();
+      const modFilter = document.getElementById('filter-module');
+      modules.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.innerText = m;
+        modFilter.appendChild(opt);
+      });
+      
+      // Calculate Categories Pass Rate Bars
+      initCategoryBars();
+      
+      // Load Screenshot Carousel
+      initScreenshotCarousel();
+      
+      // Render Table
+      applyFilters();
+      
+      // Setup event listeners
+      document.getElementById('search-box').addEventListener('input', applyFilters);
+      document.getElementById('filter-module').addEventListener('change', applyFilters);
+      document.getElementById('filter-category').addEventListener('change', applyFilters);
+      document.getElementById('filter-status').addEventListener('change', applyFilters);
+      
+      document.getElementById('prev-page-btn').addEventListener('click', () => changePage(-1));
+      document.getElementById('next-page-btn').addEventListener('click', () => changePage(1));
+      
+      // Modal events
+      document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+      document.getElementById('details-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'details-modal') closeModal();
+      });
+    }
+    
+    function initCategoryBars() {
+      const cats = ['Functional', 'UI/UX', 'Validation', 'Unit'];
+      const container = document.getElementById('category-charts');
+      container.innerHTML = '';
+      
+      cats.forEach(cat => {
+        const tests = TEST_RESULTS.filter(r => r.category === cat);
+        if (tests.length === 0) return;
+        const passed = tests.filter(r => r.status === 'PASS').length;
+        const pct = ((passed / tests.length) * 100).toFixed(0);
+        
+        const row = document.createElement('div');
+        row.className = 'category-bar-row';
+        row.innerHTML = `
+          <div class="category-bar-label">
+            <span>${cat}</span>
+            <span>${passed}/${tests.length} passed (${pct}%)</span>
+          </div>
+          <div class="category-bar-track">
+            <div class="category-bar-fill" style="width: ${pct}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    function initScreenshotCarousel() {
+      // Find E2E results that have screenshots
+      const shotResults = TEST_RESULTS.filter(r => r.screenshot);
+      const viewer = document.getElementById('carousel-viewer');
+      const thumbs = document.getElementById('carousel-thumbs');
+      
+      thumbs.innerHTML = '';
+      
+      if (shotResults.length === 0) {
+        viewer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem;">No screenshots available. Run tests to generate visual records.</div>';
+        return;
+      }
+      
+      shotResults.forEach((r, idx) => {
+        const thumb = document.createElement('div');
+        thumb.className = `carousel-thumb ${idx === 0 ? 'active' : ''}`;
+        
+        // Form path correctly. We support both Web and Mobile screenshots.
+        // Web: web_selenium/screenshots/tc-xxx.png
+        // Mobile: mobile_appium/screenshots/tc-xxx.png
+        const screenshotPath = r.module.startsWith('Mobile:') 
+          ? `mobile_appium/screenshots/${r.screenshot}` 
+          : `web_selenium/screenshots/${r.screenshot}`;
+          
+        thumb.innerHTML = `
+          <img src="${screenshotPath}" alt="${r.id}">
+          <div class="thumb-tag">${r.id}</div>
+        `;
+        
+        thumb.addEventListener('click', () => {
+          document.querySelectorAll('.carousel-thumb').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+          showScreenshot(r, screenshotPath);
+        });
+        
+        thumbs.appendChild(thumb);
+      });
+      
+      // Load initial screenshot
+      const initialPath = shotResults[0].module.startsWith('Mobile:')
+        ? `mobile_appium/screenshots/${shotResults[0].screenshot}`
+        : `web_selenium/screenshots/${shotResults[0].screenshot}`;
+      showScreenshot(shotResults[0], initialPath);
+    }
+    
+    function showScreenshot(result, path) {
+      document.getElementById('carousel-img').src = path;
+      document.getElementById('carousel-tag').innerText = `${result.id} • ${result.module} - ${result.testName}`;
+      
+      // Show highlight indicator if it's a web E2E test with outlined elements
+      const hint = document.getElementById('carousel-highlight-hint');
+      if (!result.module.startsWith('Mobile:') && result.id !== 'TC-041' && result.id !== 'TC-042') {
+        hint.style.display = 'flex';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
+    
+    // Filters & Pagination Engine
+    function applyFilters() {
+      const q = document.getElementById('search-box').value.toLowerCase();
+      const mod = document.getElementById('filter-module').value;
+      const cat = document.getElementById('filter-category').value;
+      const stat = document.getElementById('filter-status').value;
+      
+      filteredResults = TEST_RESULTS.filter(r => {
+        const matchSearch = r.testName.toLowerCase().includes(q) || r.remarks.toLowerCase().includes(q) || r.id.toLowerCase().includes(q);
+        const matchMod = !mod || r.module === mod;
+        const matchCat = !cat || r.category === cat;
+        const matchStat = !stat || r.status === stat;
+        return matchSearch && matchMod && matchCat && matchStat;
+      });
+      
+      currentPage = 1;
+      renderTable();
+    }
+    
+    function renderTable() {
+      const tbody = document.getElementById('logs-table-body');
+      tbody.innerHTML = '';
+      
+      const total = filteredResults.length;
+      if (total === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No test cases found matching filters.</td></tr>';
+        document.getElementById('page-info').innerText = 'Showing 0 to 0 of 0 test cases';
+        document.getElementById('prev-page-btn').disabled = true;
+        document.getElementById('next-page-btn').disabled = true;
+        return;
+      }
+      
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = Math.min(startIdx + itemsPerPage, total);
+      const pageItems = filteredResults.slice(startIdx, endIdx);
+      
+      pageItems.forEach(r => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        
+        const isPass = r.status === 'PASS';
+        const badgeClass = isPass ? 'badge pass' : 'badge fail';
+        const badgeText = isPass ? 'PASS' : 'FAIL';
+        const badgeIcon = isPass ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
+        
+        const pClass = r.priority === 'Critical' ? 'prio-critical' : r.priority === 'High' ? 'prio-high' : r.priority === 'Medium' ? 'prio-medium' : 'prio-low';
+        
+        row.innerHTML = `
+          <td style="font-weight: 700; color: var(--primary);">${r.id}</td>
+          <td style="font-weight: 500;">${r.module}</td>
+          <td>${r.category}</td>
+          <td style="color: var(--text-main); font-weight: 500;">${r.testName}</td>
+          <td style="text-align: center;"><span class="badge ${pClass}">${r.priority}</span></td>
+          <td style="text-align: center;"><span class="${badgeClass}"><i class="${badgeIcon}"></i> ${badgeText}</span></td>
+          <td style="text-align: center; font-weight: 600;">${r.duration || '0.00'}s</td>
+        `;
+        
+        row.addEventListener('click', () => openModal(r));
+        tbody.appendChild(row);
+      });
+      
+      // Update pagination info
+      document.getElementById('page-info').innerText = `Showing ${startIdx + 1} to ${endIdx} of ${total} test cases`;
+      document.getElementById('prev-page-btn').disabled = currentPage === 1;
+      document.getElementById('next-page-btn').disabled = endIdx >= total;
+    }
+    
+    function changePage(dir) {
+      currentPage += dir;
+      renderTable();
+    }
+    
+    // Details Modal Controller
+    function openModal(r) {
+      document.getElementById('modal-title').innerText = `${r.id} - ${r.testName}`;
+      document.getElementById('modal-module').innerText = r.module;
+      document.getElementById('modal-category').innerText = r.category;
+      document.getElementById('modal-priority').innerText = r.priority;
+      document.getElementById('modal-duration').innerText = `${r.duration || '0.00'}s`;
+      document.getElementById('modal-remarks').innerText = r.remarks;
+      
+      const errBox = document.getElementById('modal-error-container');
+      if (r.status === 'FAIL') {
+        errBox.style.display = 'flex';
+        document.getElementById('modal-error-trace').innerText = r.errorDetails || 'No stack trace captured.';
+      } else {
+        errBox.style.display = 'none';
+      }
+      
+      const shotBox = document.getElementById('modal-screenshot-container');
+      if (r.screenshot) {
+        shotBox.style.display = 'flex';
+        const shotPath = r.module.startsWith('Mobile:') 
+          ? `mobile_appium/screenshots/${r.screenshot}` 
+          : `web_selenium/screenshots/${r.screenshot}`;
+        document.getElementById('modal-screenshot-img').src = shotPath;
+      } else {
+        shotBox.style.display = 'none';
+      }
+      
+      document.getElementById('details-modal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('details-modal').classList.remove('active');
+    }
+    
+    // Run initializer
+    window.onload = init;
+  </script>
+</body>
+</html>

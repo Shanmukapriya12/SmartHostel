@@ -18,7 +18,8 @@ if(isset($_POST['login'])){
 
     $message = "Admin Login Successful";
 
-    header("refresh:2;url=admin_dashboard.php");
+    header("Location: admin_dashboard.php");
+    exit();
 
 }else{
 

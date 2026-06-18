@@ -1,0 +1,14 @@
+{
+  "name": "smart-hostel-web-selenium",
+  "version": "1.0.0",
+  "description": "Selenium E2E Web testing suite for Smart Hostel",
+  "main": "run_web_tests.js",
+  "scripts": {
+    "test": "node run_web_tests.js"
+  },
+  "dependencies": {
+    "chromedriver": "^149.0.3",
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.45.0"
+  }
+}
