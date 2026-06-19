@@ -12,7 +12,7 @@ on:
       - master
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -224,7 +224,7 @@ jobs:
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://Shanmukapriya12.github.io/SmartHostel
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -268,11 +268,9 @@ jobs:
       - name: ⚙️ Compile Dashboard and Excel Sheet
         run: node smart_hostel_testing/reporter/generate_reports.js
 
-      - name: 📤 Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: 🚀 Deploy to GitHub Pages Branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: smart_hostel_testing/reporter/reports_output
-
-      - name: 🚀 Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: smart_hostel_testing/reporter/reports_output
+          publish_branch: gh-pages
