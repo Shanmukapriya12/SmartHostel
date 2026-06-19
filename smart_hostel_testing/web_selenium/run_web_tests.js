@@ -11,7 +11,9 @@ const fs = require('fs');
 const path = require('path');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost/smart_hostel';
-const TIMEOUT = 10000;
+const IS_CI = !!(process.env.CI || process.argv.includes('--headless'));
+const TIMEOUT = IS_CI ? 6000 : 10000;   // Faster timeouts in CI
+const SLEEP = IS_CI ? 50 : 300;          // 50ms in CI vs 300ms locally (6x faster)
 const SCREENSHOTS_DIR = path.join(__dirname, 'screenshots');
 
 if (!fs.existsSync(SCREENSHOTS_DIR)) {
@@ -41,12 +43,17 @@ class WebTestRunner {
     const opts = new chrome.Options();
     
     // Auto-detect CI environment and use headless mode
-    if (process.env.CI || process.argv.includes('--headless')) {
+    if (IS_CI) {
       opts.addArguments(
         '--headless=new',
         '--no-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--disable-extensions',
+        '--disable-background-networking',
+        '--disable-default-apps',
+        '--disable-sync',
+        '--no-first-run',
         '--window-size=1366,768'
       );
     } else {
@@ -81,7 +88,7 @@ class WebTestRunner {
       driver,
       goTo: async (page) => {
         await driver.get(`${BASE_URL}/${page}`);
-        await driver.sleep(500);
+        await driver.sleep(SLEEP);
       },
       findEl: async (locator) => {
         return driver.wait(until.elementLocated(locator), TIMEOUT);
@@ -90,13 +97,12 @@ class WebTestRunner {
         const el = await this.helpers.findEl(locator);
         await driver.wait(until.elementIsVisible(el), TIMEOUT);
         await driver.executeScript("arguments[0].scrollIntoView({block: 'center'});", el);
-        await driver.sleep(100);
         try {
           await el.click();
         } catch (e) {
           await driver.executeScript("arguments[0].click();", el);
         }
-        await driver.sleep(600);
+        await driver.sleep(SLEEP);
       },
       typeIn: async (locator, text) => {
         const el = await this.helpers.findEl(locator);
@@ -122,7 +128,6 @@ class WebTestRunner {
               "let el = arguments[0]; let orig = el.style.cssText; el.style.border = '4px solid #EF4444'; el.style.boxShadow = '0 0 15px #EF4444'; return orig;", 
               highlightedElement
             );
-            await driver.sleep(100);
           } catch (e) {
             console.error(`Could not highlight element for screenshot: ${e.message}`);
           }
@@ -193,20 +198,20 @@ class WebTestRunner {
         await this.helpers.goTo('student_login.php');
         await this.helpers.typeIn(By.name('phone'), phone);
         await this.helpers.clickEl(By.name('send_otp'));
-        await driver.sleep(600);
+        await driver.sleep(SLEEP * 2);
         const alertEl = await this.helpers.findEl(By.css('.alert-info'));
         const text = await alertEl.getText();
         const otp = text.split(':')[1].trim();
         await this.helpers.typeIn(By.name('entered_otp'), otp);
         await this.helpers.clickEl(By.name('verify_otp'));
-        await driver.sleep(600);
+        await driver.sleep(SLEEP * 2);
       },
       performWardenLogin: async () => {
         await this.helpers.goTo('warden_login.php');
         await this.helpers.typeIn(By.css('input[type="email"]'), 'warden@smarthostel.com');
         await this.helpers.typeIn(By.css('input[type="password"]'), 'warden123');
         await this.helpers.clickEl(By.css('button[type="submit"]'));
-        await driver.sleep(600);
+        await driver.sleep(SLEEP * 2);
       },
       performAdminLogin: async () => {
         await this.helpers.goTo('admin_login.php');
@@ -254,7 +259,7 @@ class WebTestRunner {
         // Recover: navigate back to index to keep session stable for subsequent tests
         try {
           await this.driver.get(`${BASE_URL}/index.php`);
-          await this.driver.sleep(500);
+          await this.driver.sleep(SLEEP);
         } catch (_) {}
       }
 
