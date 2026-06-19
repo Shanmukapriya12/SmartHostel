@@ -1,0 +1,2974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏨 Smart Hostel QA Test Report Dashboard</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 50%, #0c1220 100%);
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(99, 102, 241, 0.4);
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.25);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Glassmorphism Header */
+    header {
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-logo i {
+      font-size: 2.2rem;
+      color: var(--primary);
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+    }
+
+    .header-title h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .download-btn {
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      color: white;
+      text-decoration: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: var(--transition);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Grid layout for stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: var(--transition);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: transparent;
+    }
+
+    .stat-card.primary::before { background: var(--primary); }
+    .stat-card.success::before { background: var(--success); }
+    .stat-card.danger::before { background: var(--danger); }
+    .stat-card.warning::before { background: var(--warning); }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--card-hover-border);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    .stat-info h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-info .stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .stat-card.primary .stat-icon { background: rgba(99, 102, 241, 0.15); color: var(--primary); }
+    .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .stat-card.danger .stat-icon { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+    /* Dashboard Main Split Layout */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    @media(min-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+
+    /* Section Panels */
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: flex-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 1rem;
+    }
+
+    .panel-header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Interactive Screenshot Carousel */
+    .carousel-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .carousel-viewer {
+      width: 100%;
+      height: 420px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: #080c14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .carousel-viewer img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: var(--transition);
+    }
+
+    .carousel-viewer .tag-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+    }
+
+    .carousel-viewer .highlight-hint {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .carousel-controls {
+      display: flex;
+      gap: 0.6rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .carousel-controls::-webkit-scrollbar {
+      height: 4px;
+    }
+    .carousel-controls::-webkit-scrollbar-thumb {
+      background-color: var(--primary);
+      border-radius: 4px;
+    }
+
+    .carousel-thumb {
+      width: 110px;
+      height: 75px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      opacity: 0.5;
+      transition: var(--transition);
+    }
+
+    .carousel-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-thumb.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+      opacity: 1;
+    }
+
+    .carousel-thumb:hover {
+      opacity: 0.85;
+    }
+
+    .carousel-thumb .thumb-tag {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      font-size: 0.65rem;
+      text-align: center;
+      padding: 2px 0;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Filter Engine & Search */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      background: rgba(17, 24, 39, 0.4);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem 0.7rem 2.5rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .select-filter {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      cursor: pointer;
+      min-width: 140px;
+      transition: var(--transition);
+    }
+
+    .select-filter:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Custom Table Styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(30, 41, 59, 0.6);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    td {
+      padding: 0.95rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .badge.pass { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25); }
+    .badge.fail { background: rgba(239, 68, 68, 0.12); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.25); }
+    .badge.prio-critical { color: #f43f5e; font-weight: 800; }
+    .badge.prio-high { color: #f59e0b; }
+    .badge.prio-medium { color: #3b82f6; }
+    .badge.prio-low { color: #94a3b8; }
+
+    /* Category pass chart block */
+    .chart-box {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .category-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .category-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .category-bar-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .category-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Modal styling */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      padding: 2rem;
+      position: relative;
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .close-modal-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-right: 2rem;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .modal-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    .modal-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .modal-meta-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .modal-error-block {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 12px;
+      padding: 1.2rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: #fca5a5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .modal-screenshot-block {
+      text-align: center;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: #080c14;
+      max-height: 400px;
+    }
+
+    .modal-screenshot-block img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
+
+    /* Keyframe Animations */
+    @keyframes slideDown {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+    }
+
+    .pagination-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header>
+      <div class="header-logo">
+        <i class="fa-solid fa-hotel"></i>
+        <div class="header-title">
+          <h1>Smart Hostel</h1>
+          <p>E2E Automation Testing Dashboard • Selenium (NodeJS) & Appium (Python)</p>
+        </div>
+      </div>
+      <div>
+        <a id="excel-dl-btn" href="SmartHostel_Test_Report.xlsx" class="download-btn" download>
+          <i class="fa-solid fa-file-excel"></i> Download Excel Report
+        </a>
+      </div>
+    </header>
+
+    <!-- METRIC STATS -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-info">
+          <h3>Total Test Cases</h3>
+          <div id="metric-total" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-vial"></i>
+        </div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-info">
+          <h3>Passed Cases</h3>
+          <div id="metric-passed" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-info">
+          <h3>Failed Cases</h3>
+          <div id="metric-failed" class="stat-val">0</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-info">
+          <h3>Success Pass Rate</h3>
+          <div id="metric-rate" class="stat-val">0%</div>
+        </div>
+        <div class="stat-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-layout">
+      
+      <!-- LEFT PANEL: TEST CAROUSEL VIEW -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-images"></i> Visual Interface Validations</h2>
+        </div>
+        <div class="carousel-container">
+          <div class="carousel-viewer" id="carousel-viewer">
+            <div class="tag-badge" id="carousel-tag">Select a Thumbnail</div>
+            <img id="carousel-img" src="" alt="Screenshot viewer">
+            <div class="highlight-hint" id="carousel-highlight-hint" style="display: none;">
+              <i class="fa-solid fa-circle-info"></i> Interactive element outlined in Red
+            </div>
+          </div>
+          <div class="carousel-controls" id="carousel-thumbs">
+            <!-- Thumbnails inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: CATEGORY METRICS & PLATFORM SUMMARY -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Category Distribution</h2>
+        </div>
+        <div class="chart-box" id="category-charts">
+          <!-- Dynamically inserted bars -->
+        </div>
+        <div class="panel-header" style="margin-top: 2rem; margin-bottom: 1rem;">
+          <h2><i class="fa-solid fa-network-wired"></i> Execution Stats</h2>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.8rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Web Framework:</span>
+            <span style="font-weight: 600;">Selenium WebDriver (Node.js)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">App Framework:</span>
+            <span style="font-weight: 600;">Appium Client (Python)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Execution Time:</span>
+            <span id="metric-duration" style="font-weight: 600;">0s</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Execution Date:</span>
+            <span id="metric-date" style="font-weight: 600;">-</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FULL LOGS VIEW PANEL -->
+    <div class="panel" style="margin-bottom: 3rem;">
+      <div class="panel-header" style="justify-content: space-between; display: flex; flex-wrap: wrap; gap: 1rem;">
+        <h2><i class="fa-solid fa-clipboard-list"></i> Detailed Execution Logs</h2>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Click on any row to view full details / error stack trace.</div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-box" class="search-input" placeholder="Search by test case name or remarks...">
+        </div>
+        <select id="filter-module" class="select-filter">
+          <option value="">All Modules</option>
+        </select>
+        <select id="filter-category" class="select-filter">
+          <option value="">All Categories</option>
+          <option value="Functional">Functional</option>
+          <option value="UI/UX">UI/UX</option>
+          <option value="Validation">Validation</option>
+          <option value="Unit">Unit</option>
+        </select>
+        <select id="filter-status" class="select-filter">
+          <option value="">All Statuses</option>
+          <option value="PASS">Pass</option>
+          <option value="FAIL">Fail</option>
+        </select>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">Test ID</th>
+              <th>Module</th>
+              <th>Category</th>
+              <th>Test Case Name</th>
+              <th style="width: 100px; text-align: center;">Priority</th>
+              <th style="width: 100px; text-align: center;">Status</th>
+              <th style="width: 90px; text-align: center;">Duration</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table-body">
+            <!-- Dynamic rows inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <div class="page-info" id="page-info">Showing 0 to 0 of 0 test cases</div>
+        <div class="pagination-btns">
+          <button class="page-btn" id="prev-page-btn" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+          <button class="page-btn" id="next-page-btn" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- DETAILS MODAL -->
+  <div class="modal" id="details-modal">
+    <div class="modal-content">
+      <button class="close-modal-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title" id="modal-title">TC-001 - Test Case Title</div>
+      <div class="modal-body">
+        
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Module</span>
+            <span class="modal-meta-value" id="modal-module">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Category</span>
+            <span class="modal-meta-value" id="modal-category">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Priority</span>
+            <span class="modal-meta-value" id="modal-priority">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Duration</span>
+            <span class="modal-meta-value" id="modal-duration">-</span>
+          </div>
+        </div>
+
+        <div class="modal-meta-item" style="gap: 0.4rem;">
+          <span class="modal-meta-label">Remarks</span>
+          <span style="font-weight: 500;" id="modal-remarks">-</span>
+        </div>
+
+        <div id="modal-error-container" style="display: none; flex-direction: column; gap: 0.4rem;">
+          <span class="modal-meta-label" style="color: var(--danger);">Error Stack Trace</span>
+          <div class="modal-error-block" id="modal-error-trace"></div>
+        </div>
+
+        <div id="modal-screenshot-container" style="display: none; flex-direction: column; gap: 0.4rem;">
+          <span class="modal-meta-label">Execution Screenshot</span>
+          <div class="modal-screenshot-block">
+            <img id="modal-screenshot-img" src="" alt="Test Screenshot">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA LAYER INJECTED BY REPORTER -->
+  <script>
+    // Placeholder to be replaced with JSON string by Node.js generator script
+    const TEST_RESULTS = [
+  {
+    "id": "TC-001",
+    "module": "Landing Page",
+    "category": "Functional",
+    "testName": "Get Started button navigates to role selection",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 1.55,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-001_screenshot.png"
+  },
+  {
+    "id": "TC-002",
+    "module": "Role Selection",
+    "category": "Functional",
+    "testName": "Role selection page loads options",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.44,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-002_screenshot.png"
+  },
+  {
+    "id": "TC-003",
+    "module": "Role Selection",
+    "category": "Functional",
+    "testName": "Student option navigates to student login",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.59,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-003_screenshot.png"
+  },
+  {
+    "id": "TC-004",
+    "module": "Role Selection",
+    "category": "Functional",
+    "testName": "Admin option navigates to admin login",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.38,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-004_screenshot.png"
+  },
+  {
+    "id": "TC-005",
+    "module": "Role Selection",
+    "category": "Functional",
+    "testName": "Warden option navigates to warden login",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.24,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-005_screenshot.png"
+  },
+  {
+    "id": "TC-006",
+    "module": "Student Login",
+    "category": "Functional",
+    "testName": "Student login page loads successfully",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.33,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-006_screenshot.png"
+  },
+  {
+    "id": "TC-007",
+    "module": "Student Login",
+    "category": "Functional",
+    "testName": "Register link navigates to registration page",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.41,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-007_screenshot.png"
+  },
+  {
+    "id": "TC-008",
+    "module": "Student Login",
+    "category": "Functional",
+    "testName": "Student OTP flow verifies login and enters dashboard",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.99,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-008_screenshot.png"
+  },
+  {
+    "id": "TC-009",
+    "module": "Student Registration",
+    "category": "Functional",
+    "testName": "Registration form displays input fields",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.54,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-009_screenshot.png"
+  },
+  {
+    "id": "TC-010",
+    "module": "Admin Login",
+    "category": "Functional",
+    "testName": "Admin login page loads successfully",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.46,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-010_screenshot.png"
+  },
+  {
+    "id": "TC-011",
+    "module": "Admin Login",
+    "category": "Functional",
+    "testName": "Admin login with valid credentials redirects to dashboard",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 1.14,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-011_screenshot.png"
+  },
+  {
+    "id": "TC-012",
+    "module": "Warden Login",
+    "category": "Functional",
+    "testName": "Warden login with credentials redirects to dashboard",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.72,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-012_screenshot.png"
+  },
+  {
+    "id": "TC-013",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "Student Overview card is clickable and navigates",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.59,
+    "remarks": "Expected URL to contain \"student_overview.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"student_overview.php\"\nWait timed out after 5200ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-013_screenshot.png"
+  },
+  {
+    "id": "TC-014",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "System Reports card navigates to system_reports.php",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.41,
+    "remarks": "Expected URL to contain \"system_reports.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"system_reports.php\"\nWait timed out after 5094ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-014_screenshot.png"
+  },
+  {
+    "id": "TC-015",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "Mess Overview card navigates to mess_overview.php",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.31,
+    "remarks": "Expected URL to contain \"mess_overview.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"mess_overview.php\"\nWait timed out after 5095ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-015_screenshot.png"
+  },
+  {
+    "id": "TC-016",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "Security Monitoring card navigates to security_monitoring.php",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.4,
+    "remarks": "Expected URL to contain \"security_monitoring.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"security_monitoring.php\"\nWait timed out after 5201ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-016_screenshot.png"
+  },
+  {
+    "id": "TC-017",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "System Settings card navigates to system_settings.php",
+    "priority": "Low",
+    "status": "FAIL",
+    "duration": 6.3,
+    "remarks": "Expected URL to contain \"system_settings.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"system_settings.php\"\nWait timed out after 5093ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-017_screenshot.png"
+  },
+  {
+    "id": "TC-018",
+    "module": "Admin Dashboard",
+    "category": "Functional",
+    "testName": "Back button returns to index role selection page",
+    "priority": "Low",
+    "status": "FAIL",
+    "duration": 6.45,
+    "remarks": "Expected URL to contain \"index.php\"",
+    "errorDetails": "TimeoutError: Expected URL to contain \"index.php\"\nWait timed out after 5096ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-018_screenshot.png"
+  },
+  {
+    "id": "TC-019",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Unauthenticated access redirects to student login",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.94,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6159ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-019_screenshot.png"
+  },
+  {
+    "id": "TC-020",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "My Room link navigation works",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.8,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6164ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-020_screenshot.png"
+  },
+  {
+    "id": "TC-021",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Raise Complaint link navigation works",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.74,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6169ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-021_screenshot.png"
+  },
+  {
+    "id": "TC-022",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Attendance link navigation works",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-022_screenshot.png"
+  },
+  {
+    "id": "TC-023",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Leave Request link navigation works",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-023_screenshot.png"
+  },
+  {
+    "id": "TC-024",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Hostel Fees link navigation works",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6163ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-024_screenshot.png"
+  },
+  {
+    "id": "TC-025",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Notifications link navigation works",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-025_screenshot.png"
+  },
+  {
+    "id": "TC-026",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "My Profile link navigation works",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.7,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-026_screenshot.png"
+  },
+  {
+    "id": "TC-027",
+    "module": "Student Dashboard",
+    "category": "Functional",
+    "testName": "Mess Feedback link navigation works",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-027_screenshot.png"
+  },
+  {
+    "id": "TC-028",
+    "module": "Raise Complaint",
+    "category": "Functional",
+    "testName": "Back button returns to student dashboard",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-028_screenshot.png"
+  },
+  {
+    "id": "TC-029",
+    "module": "Leave Request",
+    "category": "Functional",
+    "testName": "Back button returns to student dashboard",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.7,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-029_screenshot.png"
+  },
+  {
+    "id": "TC-030",
+    "module": "Mess Feedback",
+    "category": "Functional",
+    "testName": "Mess Feedback submission form exists and loads properly",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.73,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-030_screenshot.png"
+  },
+  {
+    "id": "TC-031",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden dashboard navigation works",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.29,
+    "remarks": "Page did not contain expected text: \"Warden Dashboard\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Warden Dashboard\"\nWait timed out after 5077ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-031_screenshot.png"
+  },
+  {
+    "id": "TC-032",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to leave requests management",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"leave_requests.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"leave_requests.php\"])\nWait timed out after 6163ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-032_screenshot.png"
+  },
+  {
+    "id": "TC-033",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to room management",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"room_management.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"room_management.php\"])\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-033_screenshot.png"
+  },
+  {
+    "id": "TC-034",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to mess management",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7.01,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"mess_management.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"mess_management.php\"])\nWait timed out after 6172ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-034_screenshot.png"
+  },
+  {
+    "id": "TC-035",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to students list",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"students.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"students.php\"])\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-035_screenshot.png"
+  },
+  {
+    "id": "TC-036",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to reports page",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 7.01,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"reports.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"reports.php\"])\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-036_screenshot.png"
+  },
+  {
+    "id": "TC-037",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to attendance management",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7.02,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"attendance_management.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"attendance_management.php\"])\nWait timed out after 6168ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-037_screenshot.png"
+  },
+  {
+    "id": "TC-038",
+    "module": "Warden Dashboard",
+    "category": "Functional",
+    "testName": "Warden can navigate to complaints management",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 7.01,
+    "remarks": "Waiting for element to be located By(css selector, a[href=\"complaints_management.php\"])",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, a[href=\"complaints_management.php\"])\nWait timed out after 6169ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-038_screenshot.png"
+  },
+  {
+    "id": "TC-039",
+    "module": "Logout",
+    "category": "Functional",
+    "testName": "Logout clears session and redirects to select role",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.73,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6171ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-039_screenshot.png"
+  },
+  {
+    "id": "TC-040",
+    "module": "Logout",
+    "category": "Functional",
+    "testName": "Accessing dashboard after logout redirects to login",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-040_screenshot.png"
+  },
+  {
+    "id": "TC-041",
+    "module": "Landing Page",
+    "category": "UI/UX",
+    "testName": "Page loads successfully and displays Smart Hostel title",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.13,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-041_screenshot.png"
+  },
+  {
+    "id": "TC-042",
+    "module": "Landing Page",
+    "category": "UI/UX",
+    "testName": "Hostel banner image is visible on landing page",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.14,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-042_screenshot.png"
+  },
+  {
+    "id": "TC-043",
+    "module": "Landing Page",
+    "category": "UI/UX",
+    "testName": "Page has correct main heading text",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-043_screenshot.png"
+  },
+  {
+    "id": "TC-044",
+    "module": "Landing Page",
+    "category": "UI/UX",
+    "testName": "Room Allocation subtitle is present",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-044_screenshot.png"
+  },
+  {
+    "id": "TC-045",
+    "module": "Landing Page",
+    "category": "UI/UX",
+    "testName": "Footer copyright section is visible",
+    "priority": "Low",
+    "status": "FAIL",
+    "duration": 5.24,
+    "remarks": "Page did not contain expected text: \"Copyright\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Copyright\"\nWait timed out after 5066ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-045_screenshot.png"
+  },
+  {
+    "id": "TC-046",
+    "module": "Role Selection",
+    "category": "UI/UX",
+    "testName": "Page has correct theme matching Smart Hostel",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.34,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-046_screenshot.png"
+  },
+  {
+    "id": "TC-047",
+    "module": "Role Selection",
+    "category": "UI/UX",
+    "testName": "Three card layout is present on role select screen",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.07,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-047_screenshot.png"
+  },
+  {
+    "id": "TC-048",
+    "module": "Student Login",
+    "category": "UI/UX",
+    "testName": "Phone input field is present",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.09,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-048_screenshot.png"
+  },
+  {
+    "id": "TC-049",
+    "module": "Student Login",
+    "category": "UI/UX",
+    "testName": "Send OTP button is visible",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-049_screenshot.png"
+  },
+  {
+    "id": "TC-050",
+    "module": "Student Login",
+    "category": "UI/UX",
+    "testName": "Verify & Login button is visible",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-050_screenshot.png"
+  },
+  {
+    "id": "TC-051",
+    "module": "Student Login",
+    "category": "UI/UX",
+    "testName": "Google Fonts loaded (Poppins or sans-serif)",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.07,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-051_screenshot.png"
+  },
+  {
+    "id": "TC-052",
+    "module": "Student Login",
+    "category": "UI/UX",
+    "testName": "Login container is aligned centered",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-052_screenshot.png"
+  },
+  {
+    "id": "TC-053",
+    "module": "Student Registration",
+    "category": "UI/UX",
+    "testName": "Department label is displayed",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.09,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-053_screenshot.png"
+  },
+  {
+    "id": "TC-054",
+    "module": "Student Registration",
+    "category": "UI/UX",
+    "testName": "Submit button is styled as primary button",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.1,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-054_screenshot.png"
+  },
+  {
+    "id": "TC-055",
+    "module": "Student Dashboard",
+    "category": "UI/UX",
+    "testName": "Student details header is styled with glassmorphism or shadows",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.7,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-055_screenshot.png"
+  },
+  {
+    "id": "TC-056",
+    "module": "Student Dashboard",
+    "category": "UI/UX",
+    "testName": "Card layout matches Grid columns",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6166ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-056_screenshot.png"
+  },
+  {
+    "id": "TC-057",
+    "module": "Student Dashboard",
+    "category": "UI/UX",
+    "testName": "Hostel notice heading is rendered",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-057_screenshot.png"
+  },
+  {
+    "id": "TC-058",
+    "module": "Raise Complaint",
+    "category": "UI/UX",
+    "testName": "Category dropdown list is formatted correctly",
+    "priority": "Low",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-058_screenshot.png"
+  },
+  {
+    "id": "TC-059",
+    "module": "Raise Complaint",
+    "category": "UI/UX",
+    "testName": "Description uses a multiline textarea",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-059_screenshot.png"
+  },
+  {
+    "id": "TC-060",
+    "module": "Leave Request",
+    "category": "UI/UX",
+    "testName": "Date inputs are formatted correctly as date controls",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-060_screenshot.png"
+  },
+  {
+    "id": "TC-061",
+    "module": "Mess Feedback",
+    "category": "UI/UX",
+    "testName": "Star rating icons are loaded properly",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-061_screenshot.png"
+  },
+  {
+    "id": "TC-062",
+    "module": "Viewport Responsiveness",
+    "category": "UI/UX",
+    "testName": "App layout stays fluid on mobile viewports (375x812)",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.19,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-062_screenshot.png"
+  },
+  {
+    "id": "TC-063",
+    "module": "Viewport Responsiveness",
+    "category": "UI/UX",
+    "testName": "Student login page stays aligned on mobile viewports",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.14,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-063_screenshot.png"
+  },
+  {
+    "id": "TC-064",
+    "module": "Viewport Responsiveness",
+    "category": "UI/UX",
+    "testName": "Admin dashboard elements are responsive",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 1.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-064_screenshot.png"
+  },
+  {
+    "id": "TC-065",
+    "module": "Admin Dashboard",
+    "category": "UI/UX",
+    "testName": "Dashboard has statistics metrics card layout",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 1.03,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-066",
+    "module": "Admin Dashboard",
+    "category": "UI/UX",
+    "testName": "Warden overview card visible",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 1.02,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-067",
+    "module": "Admin Dashboard",
+    "category": "UI/UX",
+    "testName": "Mess management card visible",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 1.02,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-068",
+    "module": "Admin Dashboard",
+    "category": "UI/UX",
+    "testName": "Security settings dashboard visible",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 1.02,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-069",
+    "module": "Warden Dashboard",
+    "category": "UI/UX",
+    "testName": "Statistics overview section is visible",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.53,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-070",
+    "module": "Warden Dashboard",
+    "category": "UI/UX",
+    "testName": "Warden details displayed correctly",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.92,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-070_screenshot.png"
+  },
+  {
+    "id": "TC-071",
+    "module": "Student Login",
+    "category": "Validation",
+    "testName": "Unregistered phone number shows error alert",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 5.72,
+    "remarks": "Page did not contain expected text: \"Not Registered\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Not Registered\"\nWait timed out after 5096ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-071_screenshot.png"
+  },
+  {
+    "id": "TC-072",
+    "module": "Student Login",
+    "category": "Validation",
+    "testName": "Empty phone field blocks submission",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.19,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-072_screenshot.png"
+  },
+  {
+    "id": "TC-073",
+    "module": "Student Login",
+    "category": "Validation",
+    "testName": "Invalid OTP verification prints error message",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.39,
+    "remarks": "Page did not contain expected text: \"Invalid OTP\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Invalid OTP\"\nWait timed out after 5098ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-073_screenshot.png"
+  },
+  {
+    "id": "TC-074",
+    "module": "Student Registration",
+    "category": "Validation",
+    "testName": "Empty registration form details block submission",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 1.32,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-074_screenshot.png"
+  },
+  {
+    "id": "TC-075",
+    "module": "Student Registration",
+    "category": "Validation",
+    "testName": "Invalid characters in phone block submission",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 1.3,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-075_screenshot.png"
+  },
+  {
+    "id": "TC-076",
+    "module": "Admin Login",
+    "category": "Validation",
+    "testName": "Invalid admin credentials display \"Invalid\" alert",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Page did not contain expected text: \"Invalid\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Invalid\"\nWait timed out after 5094ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-076_screenshot.png"
+  },
+  {
+    "id": "TC-077",
+    "module": "Admin Login",
+    "category": "Validation",
+    "testName": "Empty email and password controls block submission",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.18,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-078",
+    "module": "Warden Login",
+    "category": "Validation",
+    "testName": "Invalid warden credentials show validation alert",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.79,
+    "remarks": "Page did not contain expected text: \"Invalid\"",
+    "errorDetails": "TimeoutError: Page did not contain expected text: \"Invalid\"\nWait timed out after 5103ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-078_screenshot.png"
+  },
+  {
+    "id": "TC-079",
+    "module": "Raise Complaint",
+    "category": "Validation",
+    "testName": "Empty title blocks complaint creation",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-079_screenshot.png"
+  },
+  {
+    "id": "TC-080",
+    "module": "Raise Complaint",
+    "category": "Validation",
+    "testName": "Empty description blocks complaint creation",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-080_screenshot.png"
+  },
+  {
+    "id": "TC-081",
+    "module": "Leave Request",
+    "category": "Validation",
+    "testName": "Empty reason blocks leave request submission",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.73,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-081_screenshot.png"
+  },
+  {
+    "id": "TC-082",
+    "module": "Leave Request",
+    "category": "Validation",
+    "testName": "Empty parent phone blocks leave request submission",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-082_screenshot.png"
+  },
+  {
+    "id": "TC-083",
+    "module": "Mess Feedback",
+    "category": "Validation",
+    "testName": "Empty comment field blocks feedback submission",
+    "priority": "High",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-083_screenshot.png"
+  },
+  {
+    "id": "TC-084",
+    "module": "Mess Feedback",
+    "category": "Validation",
+    "testName": "Invalid ratings boundary verification",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.73,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-084_screenshot.png"
+  },
+  {
+    "id": "TC-085",
+    "module": "Room Management",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6162ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-085_screenshot.png"
+  },
+  {
+    "id": "TC-086",
+    "module": "Leave Requests Management",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6167ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-086_screenshot.png"
+  },
+  {
+    "id": "TC-087",
+    "module": "Mess Management",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-087_screenshot.png"
+  },
+  {
+    "id": "TC-088",
+    "module": "Students List",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-088_screenshot.png"
+  },
+  {
+    "id": "TC-089",
+    "module": "Security Monitoring",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-089_screenshot.png"
+  },
+  {
+    "id": "TC-090",
+    "module": "System Settings",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-090_screenshot.png"
+  },
+  {
+    "id": "TC-091",
+    "module": "Complaint Monitoring",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-091_screenshot.png"
+  },
+  {
+    "id": "TC-092",
+    "module": "Complaints Management",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6160ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-092_screenshot.png"
+  },
+  {
+    "id": "TC-093",
+    "module": "Attendance Management",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-093_screenshot.png"
+  },
+  {
+    "id": "TC-094",
+    "module": "Student Overview",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.71,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6161ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-094_screenshot.png"
+  },
+  {
+    "id": "TC-095",
+    "module": "System Reports",
+    "category": "Validation",
+    "testName": "Access blocks for unauthorized students",
+    "priority": "Critical",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6159ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-095_screenshot.png"
+  },
+  {
+    "id": "TC-096",
+    "module": "Form Validation Helper",
+    "category": "Unit",
+    "testName": "Regex phone validation matching 10 digits matches correct formats",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-097",
+    "module": "Date Arithmetic Helper",
+    "category": "Unit",
+    "testName": "Leave date validation logic rejects invalid date range options",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.73,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6165ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-097_screenshot.png"
+  },
+  {
+    "id": "TC-098",
+    "module": "Rating Math Helper",
+    "category": "Unit",
+    "testName": "Mess feedback star rating calculations and averages",
+    "priority": "Medium",
+    "status": "FAIL",
+    "duration": 6.72,
+    "remarks": "Waiting for element to be located By(css selector, .alert-info)",
+    "errorDetails": "TimeoutError: Waiting for element to be located By(css selector, .alert-info)\nWait timed out after 6158ms\n    at /home/runner/work/SmartHostel/SmartHostel/node_modules/selenium-webdriver/lib/webdriver.js:929:22\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+    "screenshot": "tc-098_screenshot.png"
+  },
+  {
+    "id": "TC-099",
+    "module": "OTP Generator Unit Test",
+    "category": "Unit",
+    "testName": "Verification code properties length and digit format",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.08,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-100",
+    "module": "URL Construction Helper",
+    "category": "Unit",
+    "testName": "Query parameter builder matches expected formatted string",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.07,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-101",
+    "module": "UI Helper Unit",
+    "category": "Unit",
+    "testName": "Alert fade out animation timer utility function",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.18,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-102",
+    "module": "Database Connection Client Check",
+    "category": "Unit",
+    "testName": "Client checks db connection status banner presence",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0.09,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-103",
+    "module": "Typography Font Size Loader",
+    "category": "Unit",
+    "testName": "Unit checks CSS font variables configurations",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0.07,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-104",
+    "module": "Bootstrap Alert Class Utility",
+    "category": "Unit",
+    "testName": "Helper class binds alert-danger correctly",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.07,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-105",
+    "module": "Navigation Active State Helper",
+    "category": "Unit",
+    "testName": "Active class toggle utility behaves correctly",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.09,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-201",
+    "module": "Mobile: Mobile Landing",
+    "category": "Functional",
+    "testName": "Verify mobile landing page loads and title matches",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-201_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-202",
+    "module": "Mobile: Mobile Landing",
+    "category": "Functional",
+    "testName": "Verify mobile Get Started button navigates to select role page",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-202_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-203",
+    "module": "Mobile: Mobile Role Selection",
+    "category": "Functional",
+    "testName": "Verify student card navigation on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-203_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-204",
+    "module": "Mobile: Mobile Role Selection",
+    "category": "Functional",
+    "testName": "Verify admin card navigation on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-204_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-205",
+    "module": "Mobile: Mobile Role Selection",
+    "category": "Functional",
+    "testName": "Verify warden card navigation on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-205_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-206",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Functional",
+    "testName": "Verify mobile student login inputs are displayed",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-206_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-207",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Functional",
+    "testName": "Verify registration link works on mobile login page",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-207_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-208",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Functional",
+    "testName": "Verify OTP verification process completes login on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-208_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-209",
+    "module": "Mobile: Mobile Admin Login",
+    "category": "Functional",
+    "testName": "Verify admin credentials redirect to dashboard on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-209_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-210",
+    "module": "Mobile: Mobile Warden Login",
+    "category": "Functional",
+    "testName": "Verify warden credentials redirect to dashboard on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-210_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-211",
+    "module": "Mobile: Mobile Raise Complaint",
+    "category": "Functional",
+    "testName": "Verify student can submit a complaint details from mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-211_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-212",
+    "module": "Mobile: Mobile Leave Request",
+    "category": "Functional",
+    "testName": "Verify student can enter leave dates and details on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-212_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-213",
+    "module": "Mobile: Mobile Mess Feedback",
+    "category": "Functional",
+    "testName": "Verify mess feedback ratings and comments on mobile",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-213_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-214",
+    "module": "Mobile: Mobile Warden Dashboard",
+    "category": "Functional",
+    "testName": "Verify warden can access leave management panel",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-214_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-215",
+    "module": "Mobile: Mobile Logout",
+    "category": "Functional",
+    "testName": "Verify student logout terminates session on mobile",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-215_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-216",
+    "module": "Mobile: Mobile Landing",
+    "category": "UI/UX",
+    "testName": "Verify banner image scaling on mobile screens",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-216_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-217",
+    "module": "Mobile: Mobile Landing",
+    "category": "UI/UX",
+    "testName": "Verify Get Started button is touch-accessible and centered",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-217_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-218",
+    "module": "Mobile: Mobile Role Selection",
+    "category": "UI/UX",
+    "testName": "Verify card spacing on role selection mobile viewport",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-218_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-219",
+    "module": "Mobile: Mobile Student Login",
+    "category": "UI/UX",
+    "testName": "Verify mobile padding on login form control elements",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-219_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-220",
+    "module": "Mobile: Mobile Student Login",
+    "category": "UI/UX",
+    "testName": "Verify OTP input and verify button grouping on mobile",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-220_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-221",
+    "module": "Mobile: Mobile Student Dashboard",
+    "category": "UI/UX",
+    "testName": "Verify columns scale to single item per row on mobile",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-221_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-222",
+    "module": "Mobile: Mobile Student Dashboard",
+    "category": "UI/UX",
+    "testName": "Verify notice box has proper contrast and margin padding",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-222_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-223",
+    "module": "Mobile: Mobile Raise Complaint",
+    "category": "UI/UX",
+    "testName": "Verify category dropdown handles option text wrapping on mobile",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-223_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-224",
+    "module": "Mobile: Mobile Mess Feedback",
+    "category": "UI/UX",
+    "testName": "Verify comment text container has minimum height height of 100px",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-224_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-225",
+    "module": "Mobile: Mobile Admin Dashboard",
+    "category": "UI/UX",
+    "testName": "Verify admin sidebar collapsibility or wrapping on mobile view",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-225_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-236",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify Python regex logic matches typical Indian mobile formats",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-237",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify mathematical limits of simulated random verification codes",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-238",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify date chronological checks for leave request inputs",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0.01,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-239",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify average ratings calculation logic for mess items",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-240",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify query parameter formatting helper returns correct query strings",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-241",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify Appium capability formatting helper maps types correctly",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-242",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify regex validation checks for admin and warden email formats",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-243",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify CSS style classes mapping logic for status flags",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-244",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify stopwatch execution timing format string outputs",
+    "priority": "Low",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-245",
+    "module": "Mobile: Mobile General",
+    "category": "Unit",
+    "testName": "Verify file upload extension checks reject invalid file types",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": null
+  },
+  {
+    "id": "TC-226",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Validation",
+    "testName": "Verify registration error details message for bad phone",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-226_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-227",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Validation",
+    "testName": "Verify validation error alert for bad OTP verification code",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-227_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-228",
+    "module": "Mobile: Mobile Student Login",
+    "category": "Validation",
+    "testName": "Verify HTML5 validation trigger on empty phone submit",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-228_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-229",
+    "module": "Mobile: Mobile Admin Login",
+    "category": "Validation",
+    "testName": "Verify email and password are marked as required in admin login form",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-229_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-230",
+    "module": "Mobile: Mobile Warden Login",
+    "category": "Validation",
+    "testName": "Verify email and password are marked as required in warden login form",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-230_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-231",
+    "module": "Mobile: Mobile Raise Complaint",
+    "category": "Validation",
+    "testName": "Verify empty fields validation constraints for complaint form",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-231_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-232",
+    "module": "Mobile: Mobile Leave Request",
+    "category": "Validation",
+    "testName": "Verify empty fields validation constraints for leave form",
+    "priority": "High",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-232_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-233",
+    "module": "Mobile: Mobile Mess Feedback",
+    "category": "Validation",
+    "testName": "Verify empty comments validation constraint on mobile mess feedback",
+    "priority": "Medium",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-233_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-234",
+    "module": "Mobile: Mobile Security Routing",
+    "category": "Validation",
+    "testName": "Verify dashboard access blocks for unauthenticated student clients",
+    "priority": "Critical",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-234_mobile_screenshot.png"
+  },
+  {
+    "id": "TC-235",
+    "module": "Mobile: Mobile Security Routing",
+    "category": "Validation",
+    "testName": "Verify leave dashboard access blocks for unauthenticated student clients",
+    "priority": "Critical",
+    "status": "PASS",
+    "duration": 0,
+    "remarks": "Success",
+    "errorDetails": "",
+    "screenshot": "tc-235_mobile_screenshot.png"
+  }
+];
+    
+    // Global State
+    let filteredResults = [...TEST_RESULTS];
+    let currentPage = 1;
+    const itemsPerPage = 15;
+    
+    // Initialize Dashboard
+    function init() {
+      // Calculate Stats
+      const total = TEST_RESULTS.length;
+      const passed = TEST_RESULTS.filter(r => r.status === 'PASS').length;
+      const failed = TEST_RESULTS.filter(r => r.status === 'FAIL').length;
+      const rate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+      
+      const totalDuration = TEST_RESULTS.reduce((acc, r) => acc + (r.duration || 0), 0).toFixed(2);
+      
+      document.getElementById('metric-total').innerText = total;
+      document.getElementById('metric-passed').innerText = passed;
+      document.getElementById('metric-failed').innerText = failed;
+      document.getElementById('metric-rate').innerText = `${rate}%`;
+      document.getElementById('metric-duration').innerText = `${totalDuration}s`;
+      document.getElementById('metric-date').innerText = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      
+      // Setup Modules filter options
+      const modules = [...new Set(TEST_RESULTS.map(r => r.module))].sort();
+      const modFilter = document.getElementById('filter-module');
+      modules.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.innerText = m;
+        modFilter.appendChild(opt);
+      });
+      
+      // Calculate Categories Pass Rate Bars
+      initCategoryBars();
+      
+      // Load Screenshot Carousel
+      initScreenshotCarousel();
+      
+      // Render Table
+      applyFilters();
+      
+      // Setup event listeners
+      document.getElementById('search-box').addEventListener('input', applyFilters);
+      document.getElementById('filter-module').addEventListener('change', applyFilters);
+      document.getElementById('filter-category').addEventListener('change', applyFilters);
+      document.getElementById('filter-status').addEventListener('change', applyFilters);
+      
+      document.getElementById('prev-page-btn').addEventListener('click', () => changePage(-1));
+      document.getElementById('next-page-btn').addEventListener('click', () => changePage(1));
+      
+      // Modal events
+      document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+      document.getElementById('details-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'details-modal') closeModal();
+      });
+    }
+    
+    function initCategoryBars() {
+      const cats = ['Functional', 'UI/UX', 'Validation', 'Unit'];
+      const container = document.getElementById('category-charts');
+      container.innerHTML = '';
+      
+      cats.forEach(cat => {
+        const tests = TEST_RESULTS.filter(r => r.category === cat);
+        if (tests.length === 0) return;
+        const passed = tests.filter(r => r.status === 'PASS').length;
+        const pct = ((passed / tests.length) * 100).toFixed(0);
+        
+        const row = document.createElement('div');
+        row.className = 'category-bar-row';
+        row.innerHTML = `
+          <div class="category-bar-label">
+            <span>${cat}</span>
+            <span>${passed}/${tests.length} passed (${pct}%)</span>
+          </div>
+          <div class="category-bar-track">
+            <div class="category-bar-fill" style="width: ${pct}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+    
+    function initScreenshotCarousel() {
+      // Find E2E results that have screenshots
+      const shotResults = TEST_RESULTS.filter(r => r.screenshot);
+      const viewer = document.getElementById('carousel-viewer');
+      const thumbs = document.getElementById('carousel-thumbs');
+      
+      thumbs.innerHTML = '';
+      
+      if (shotResults.length === 0) {
+        viewer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem;">No screenshots available. Run tests to generate visual records.</div>';
+        return;
+      }
+      
+      shotResults.forEach((r, idx) => {
+        const thumb = document.createElement('div');
+        thumb.className = `carousel-thumb ${idx === 0 ? 'active' : ''}`;
+        
+        // Form path correctly. We support both Web and Mobile screenshots.
+        // Web: web_selenium/screenshots/tc-xxx.png
+        // Mobile: mobile_appium/screenshots/tc-xxx.png
+        const screenshotPath = r.module.startsWith('Mobile:') 
+          ? `mobile_appium/screenshots/${r.screenshot}` 
+          : `web_selenium/screenshots/${r.screenshot}`;
+          
+        thumb.innerHTML = `
+          <img src="${screenshotPath}" alt="${r.id}">
+          <div class="thumb-tag">${r.id}</div>
+        `;
+        
+        thumb.addEventListener('click', () => {
+          document.querySelectorAll('.carousel-thumb').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+          showScreenshot(r, screenshotPath);
+        });
+        
+        thumbs.appendChild(thumb);
+      });
+      
+      // Load initial screenshot
+      const initialPath = shotResults[0].module.startsWith('Mobile:')
+        ? `mobile_appium/screenshots/${shotResults[0].screenshot}`
+        : `web_selenium/screenshots/${shotResults[0].screenshot}`;
+      showScreenshot(shotResults[0], initialPath);
+    }
+    
+    function showScreenshot(result, path) {
+      document.getElementById('carousel-img').src = path;
+      document.getElementById('carousel-tag').innerText = `${result.id} • ${result.module} - ${result.testName}`;
+      
+      // Show highlight indicator if it's a web E2E test with outlined elements
+      const hint = document.getElementById('carousel-highlight-hint');
+      if (!result.module.startsWith('Mobile:') && result.id !== 'TC-041' && result.id !== 'TC-042') {
+        hint.style.display = 'flex';
+      } else {
+        hint.style.display = 'none';
+      }
+    }
+    
+    // Filters & Pagination Engine
+    function applyFilters() {
+      const q = document.getElementById('search-box').value.toLowerCase();
+      const mod = document.getElementById('filter-module').value;
+      const cat = document.getElementById('filter-category').value;
+      const stat = document.getElementById('filter-status').value;
+      
+      filteredResults = TEST_RESULTS.filter(r => {
+        const matchSearch = r.testName.toLowerCase().includes(q) || r.remarks.toLowerCase().includes(q) || r.id.toLowerCase().includes(q);
+        const matchMod = !mod || r.module === mod;
+        const matchCat = !cat || r.category === cat;
+        const matchStat = !stat || r.status === stat;
+        return matchSearch && matchMod && matchCat && matchStat;
+      });
+      
+      currentPage = 1;
+      renderTable();
+    }
+    
+    function renderTable() {
+      const tbody = document.getElementById('logs-table-body');
+      tbody.innerHTML = '';
+      
+      const total = filteredResults.length;
+      if (total === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No test cases found matching filters.</td></tr>';
+        document.getElementById('page-info').innerText = 'Showing 0 to 0 of 0 test cases';
+        document.getElementById('prev-page-btn').disabled = true;
+        document.getElementById('next-page-btn').disabled = true;
+        return;
+      }
+      
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = Math.min(startIdx + itemsPerPage, total);
+      const pageItems = filteredResults.slice(startIdx, endIdx);
+      
+      pageItems.forEach(r => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        
+        const isPass = r.status === 'PASS';
+        const badgeClass = isPass ? 'badge pass' : 'badge fail';
+        const badgeText = isPass ? 'PASS' : 'FAIL';
+        const badgeIcon = isPass ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
+        
+        const pClass = r.priority === 'Critical' ? 'prio-critical' : r.priority === 'High' ? 'prio-high' : r.priority === 'Medium' ? 'prio-medium' : 'prio-low';
+        
+        row.innerHTML = `
+          <td style="font-weight: 700; color: var(--primary);">${r.id}</td>
+          <td style="font-weight: 500;">${r.module}</td>
+          <td>${r.category}</td>
+          <td style="color: var(--text-main); font-weight: 500;">${r.testName}</td>
+          <td style="text-align: center;"><span class="badge ${pClass}">${r.priority}</span></td>
+          <td style="text-align: center;"><span class="${badgeClass}"><i class="${badgeIcon}"></i> ${badgeText}</span></td>
+          <td style="text-align: center; font-weight: 600;">${r.duration || '0.00'}s</td>
+        `;
+        
+        row.addEventListener('click', () => openModal(r));
+        tbody.appendChild(row);
+      });
+      
+      // Update pagination info
+      document.getElementById('page-info').innerText = `Showing ${startIdx + 1} to ${endIdx} of ${total} test cases`;
+      document.getElementById('prev-page-btn').disabled = currentPage === 1;
+      document.getElementById('next-page-btn').disabled = endIdx >= total;
+    }
+    
+    function changePage(dir) {
+      currentPage += dir;
+      renderTable();
+    }
+    
+    // Details Modal Controller
+    function openModal(r) {
+      document.getElementById('modal-title').innerText = `${r.id} - ${r.testName}`;
+      document.getElementById('modal-module').innerText = r.module;
+      document.getElementById('modal-category').innerText = r.category;
+      document.getElementById('modal-priority').innerText = r.priority;
+      document.getElementById('modal-duration').innerText = `${r.duration || '0.00'}s`;
+      document.getElementById('modal-remarks').innerText = r.remarks;
+      
+      const errBox = document.getElementById('modal-error-container');
+      if (r.status === 'FAIL') {
+        errBox.style.display = 'flex';
+        document.getElementById('modal-error-trace').innerText = r.errorDetails || 'No stack trace captured.';
+      } else {
+        errBox.style.display = 'none';
+      }
+      
+      const shotBox = document.getElementById('modal-screenshot-container');
+      if (r.screenshot) {
+        shotBox.style.display = 'flex';
+        const shotPath = r.module.startsWith('Mobile:') 
+          ? `mobile_appium/screenshots/${r.screenshot}` 
+          : `web_selenium/screenshots/${r.screenshot}`;
+        document.getElementById('modal-screenshot-img').src = shotPath;
+      } else {
+        shotBox.style.display = 'none';
+      }
+      
+      document.getElementById('details-modal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('details-modal').classList.remove('active');
+    }
+    
+    // Run initializer
+    window.onload = init;
+  </script>
+</body>
+</html>
