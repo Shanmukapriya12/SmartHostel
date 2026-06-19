@@ -12,8 +12,8 @@ const path = require('path');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost/smart_hostel';
 const IS_CI = !!(process.env.CI || process.argv.includes('--headless'));
-const TIMEOUT = IS_CI ? 6000 : 10000;   // Faster timeouts in CI
-const SLEEP = IS_CI ? 50 : 300;          // 50ms in CI vs 300ms locally (6x faster)
+const TIMEOUT = IS_CI ? 12000 : 10000;  // 12s in CI for stability, 10s locally
+const SLEEP = IS_CI ? 100 : 300;         // 100ms in CI vs 300ms locally
 const SCREENSHOTS_DIR = path.join(__dirname, 'screenshots');
 
 if (!fs.existsSync(SCREENSHOTS_DIR)) {
@@ -215,10 +215,16 @@ class WebTestRunner {
       },
       performAdminLogin: async () => {
         await this.helpers.goTo('admin_login.php');
+        await driver.sleep(SLEEP);
         await this.helpers.typeIn(By.name('email'), 'admin@gmail.com');
         await this.helpers.typeIn(By.name('password'), 'admin123');
-        await this.helpers.clickEl(By.css('button[type="submit"]'));
-        await driver.sleep(600);
+        // Try both name=login button and generic submit button
+        try {
+          await this.helpers.clickEl(By.css('button[name="login"], button[type="submit"]'));
+        } catch(e) {
+          await this.helpers.clickEl(By.css('button[type="submit"]'));
+        }
+        await driver.sleep(1000);  // Wait longer for PHP redirect
       }
     };
   }
@@ -292,7 +298,7 @@ class WebTestRunner {
 const runner = new WebTestRunner();
 
 // Load modules
-const modules = ['functional.test.js', 'ui_ux.test.js', 'validation.test.js', 'unit.test.js'];
+const modules = ['functional.test.js', 'ui_ux.test.js', 'validation.test.js', 'unit.test.js', 'integration.test.js', 'advanced.test.js'];
 modules.forEach(file => {
   const filePath = path.join(__dirname, 'tests', file);
   if (fs.existsSync(filePath)) {
