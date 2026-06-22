@@ -3,6 +3,4 @@ node_modules/
 tests/test_run.log
 smart_hostel_testing/reporter/results/
 smart_hostel_testing/reporter/reports_output/
-E2E_Test_Report_SmartHostel_Latest.xlsx
-*.xlsx
 
