@@ -45,13 +45,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js selenium selenium_web_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js selenium_web_results.json selenium_web_report.xlsx "Web Selenium"
 
-      - name: 📤 Upload Web Results Artifact
+      - name: 📤 Upload Web JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-web-json
+          path: selenium_web_results.json
+
+      - name: 📤 Upload Web Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: selenium-web-report
-          path: |
-            selenium_web_results.json
-            selenium_web_report.xlsx
+          path: selenium_web_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 2: Appium - Android Tests (300)
@@ -77,13 +81,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js appium appium_android_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js appium_android_results.json appium_android_report.xlsx "Mobile Appium"
 
-      - name: 📤 Upload Android Results Artifact
+      - name: 📤 Upload Android JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-android-json
+          path: appium_android_results.json
+
+      - name: 📤 Upload Android Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: appium-android-report
-          path: |
-            appium_android_results.json
-            appium_android_report.xlsx
+          path: appium_android_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 3: Unit Tests - API (300)
@@ -109,13 +117,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js unit unit_test_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js unit_test_results.json unit_test_report.xlsx "Unit API"
 
-      - name: 📤 Upload Unit API Results Artifact
+      - name: 📤 Upload Unit JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-json
+          path: unit_test_results.json
+
+      - name: 📤 Upload Unit Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
-          path: |
-            unit_test_results.json
-            unit_test_report.xlsx
+          path: unit_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 4: Validation Tests (300)
@@ -141,13 +153,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js validation validation_test_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js validation_test_results.json validation_test_report.xlsx "Validation Tests"
 
-      - name: 📤 Upload Validation Results Artifact
+      - name: 📤 Upload Validation JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-test-json
+          path: validation_test_results.json
+
+      - name: 📤 Upload Validation Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: validation-test-report
-          path: |
-            validation_test_results.json
-            validation_test_report.xlsx
+          path: validation_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 5: Deployment Status (300)
@@ -173,13 +189,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js deployment deployment_test_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js deployment_test_results.json deployment_test_report.xlsx "Deployment Status"
 
-      - name: 📤 Upload Deployment Results Artifact
+      - name: 📤 Upload Deployment JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-test-json
+          path: deployment_test_results.json
+
+      - name: 📤 Upload Deployment Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: deployment-test-report
-          path: |
-            deployment_test_results.json
-            deployment_test_report.xlsx
+          path: deployment_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 6: Load Testing - Performance (300)
@@ -205,13 +225,17 @@ jobs:
           node smart_hostel_testing/reporter/generate_mock_results.js load load_test_results.json
           node smart_hostel_testing/reporter/compile_single_excel.js load_test_results.json load_test_report.xlsx "Load Testing"
 
-      - name: 📤 Upload Load Results Artifact
+      - name: 📤 Upload Load JSON Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-json
+          path: load_test_results.json
+
+      - name: 📤 Upload Load Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: load-test-report
-          path: |
-            load_test_results.json
-            load_test_report.xlsx
+          path: load_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 7: Compile Master Report & Deploy
@@ -238,42 +262,42 @@ jobs:
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: selenium-web-report
+          name: selenium-web-json
           path: smart_hostel_testing/reporter/results/selenium-web-report
 
       - name: 📥 Download Mobile Results
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: appium-android-report
+          name: appium-android-json
           path: smart_hostel_testing/reporter/results/appium-android-report
 
       - name: 📥 Download Unit API Results
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: unit-test-report
+          name: unit-test-json
           path: smart_hostel_testing/reporter/results/unit-test-report
 
       - name: 📥 Download Validation Results
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: validation-test-report
+          name: validation-test-json
           path: smart_hostel_testing/reporter/results/validation-test-report
 
       - name: 📥 Download Deployment Results
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: deployment-test-report
+          name: deployment-test-json
           path: smart_hostel_testing/reporter/results/deployment-test-report
 
       - name: 📥 Download Load Results
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: load-test-report
+          name: load-test-json
           path: smart_hostel_testing/reporter/results/load-test-report
 
       - name: 🖼️ Generate Visual Screenshot Placeholders
