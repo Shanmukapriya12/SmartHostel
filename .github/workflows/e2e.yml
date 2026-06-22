@@ -35,16 +35,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Selenium Web Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Selenium Web Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js selenium selenium_web_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js selenium_web_results.json selenium_web_report.xlsx "Web Selenium"
 
       - name: 📤 Upload Web Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: selenium-web-report
-          path: selenium_web_results.json
+          path: |
+            selenium_web_results.json
+            selenium_web_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 2: Appium - Android Tests (300)
@@ -60,16 +67,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Appium Android Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Appium Android Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js appium appium_android_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js appium_android_results.json appium_android_report.xlsx "Mobile Appium"
 
       - name: 📤 Upload Android Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: appium-android-report
-          path: appium_android_results.json
+          path: |
+            appium_android_results.json
+            appium_android_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 3: Unit Tests - API (300)
@@ -85,16 +99,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Unit API Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Unit API Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js unit unit_test_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js unit_test_results.json unit_test_report.xlsx "Unit API"
 
       - name: 📤 Upload Unit API Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
-          path: unit_test_results.json
+          path: |
+            unit_test_results.json
+            unit_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 4: Validation Tests (300)
@@ -110,16 +131,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Validation Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Validation Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js validation validation_test_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js validation_test_results.json validation_test_report.xlsx "Validation Tests"
 
       - name: 📤 Upload Validation Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: validation-test-report
-          path: validation_test_results.json
+          path: |
+            validation_test_results.json
+            validation_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 5: Deployment Status (300)
@@ -135,16 +163,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Deployment Status Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Deployment Status Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js deployment deployment_test_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js deployment_test_results.json deployment_test_report.xlsx "Deployment Status"
 
       - name: 📤 Upload Deployment Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-test-report
-          path: deployment_test_results.json
+          path: |
+            deployment_test_results.json
+            deployment_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 6: Load Testing - Performance (300)
@@ -160,16 +195,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
-      - name: 🧪 Run Mock Load/Performance Tests
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Mock Load/Performance Tests & Compile Excel
         run: |
           node smart_hostel_testing/reporter/generate_mock_results.js load load_test_results.json
+          node smart_hostel_testing/reporter/compile_single_excel.js load_test_results.json load_test_report.xlsx "Load Testing"
 
       - name: 📤 Upload Load Results Artifact
         uses: actions/upload-artifact@v4
         with:
           name: load-test-report
-          path: load_test_results.json
+          path: |
+            load_test_results.json
+            load_test_report.xlsx
 
   # ─────────────────────────────────────────────
   # JOB 7: Compile Master Report & Deploy
