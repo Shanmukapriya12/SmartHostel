@@ -269,3 +269,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: smart_hostel_testing/reporter/reports_output
           publish_branch: gh-pages
+
+      - name: 📤 Commit & Push Latest Excel Report to Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          cp smart_hostel_testing/reporter/reports_output/SmartHostel_Test_Report.xlsx E2E_Test_Report_SmartHostel_Latest.xlsx
+          git add E2E_Test_Report_SmartHostel_Latest.xlsx
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-update latest E2E test report [skip ci]" && git push origin HEAD:${{ github.ref_name }})
