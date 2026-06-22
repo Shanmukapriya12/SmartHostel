@@ -115,6 +115,39 @@ async function main() {
     };
   });
 
+  // ------------------------------------------------------------
+  //  SHEET 2 - RawData (Hidden, holds source test results JSON)
+  // ------------------------------------------------------------
+  const rawSheet = workbook.addWorksheet('RawData');
+  rawSheet.state = 'hidden';
+  rawSheet.columns = [
+    { key: 'id', header: 'ID' },
+    { key: 'module', header: 'Module' },
+    { key: 'category', header: 'Category' },
+    { key: 'testName', header: 'Test Name' },
+    { key: 'priority', header: 'Priority' },
+    { key: 'status', header: 'Status' },
+    { key: 'duration', header: 'Duration' },
+    { key: 'remarks', header: 'Remarks' },
+    { key: 'errorDetails', header: 'Error Details' },
+    { key: 'screenshot', header: 'Screenshot' }
+  ];
+
+  rawData.forEach(r => {
+    rawSheet.addRow({
+      id: r.id,
+      module: r.module,
+      category: r.category,
+      testName: r.testName,
+      priority: r.priority,
+      status: r.status,
+      duration: Number(r.duration) || 0,
+      remarks: r.remarks || '',
+      errorDetails: r.errorDetails || '',
+      screenshot: r.screenshot || ''
+    });
+  });
+
   // Ensure output directory exists
   const dir = path.dirname(resolvedXlsx);
   if (!fs.existsSync(dir)) {

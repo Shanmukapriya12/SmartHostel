@@ -45,23 +45,53 @@ function getTimestampString() {
   return `${dateStr}, ${displayHours}:${minutes}:${seconds} ${ampm}`;
 }
 
-// Robust helper to find and read JSON results files
-function loadSuiteResults(suiteName, candidates) {
+/// Robust helper to find and read JSON or Excel results files
+async function loadSuiteResults(suiteName, candidates) {
   for (const candidate of candidates) {
     const filePath = path.isAbsolute(candidate) 
       ? candidate 
       : path.resolve(path.join(__dirname, '..', '..', candidate));
 
     if (fs.existsSync(filePath)) {
-      try {
-        const content = fs.readFileSync(filePath, 'utf8');
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-          console.log(`✅ Loaded ${data.length} results for [${suiteName}] from: ${candidate}`);
-          return data;
+      if (candidate.endsWith('.json')) {
+        try {
+          const content = fs.readFileSync(filePath, 'utf8');
+          const data = JSON.parse(content);
+          if (Array.isArray(data)) {
+            console.log(`✅ Loaded ${data.length} results for [${suiteName}] from JSON: ${candidate}`);
+            return data;
+          }
+        } catch (err) {
+          console.error(`❌ Error parsing JSON for [${suiteName}] from ${candidate}:`, err.message);
         }
-      } catch (err) {
-        console.error(`❌ Error parsing JSON for [${suiteName}] from ${candidate}:`, err.message);
+      } else if (candidate.endsWith('.xlsx')) {
+        try {
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.readFile(filePath);
+          const rawSheet = workbook.getWorksheet('RawData');
+          if (rawSheet) {
+            const data = [];
+            rawSheet.eachRow((row, rowNumber) => {
+              if (rowNumber === 1) return; // skip header
+              data.push({
+                id: row.getCell(1).value ? row.getCell(1).value.toString() : '',
+                module: row.getCell(2).value ? row.getCell(2).value.toString() : '',
+                category: row.getCell(3).value ? row.getCell(3).value.toString() : '',
+                testName: row.getCell(4).value ? row.getCell(4).value.toString() : '',
+                priority: row.getCell(5).value ? row.getCell(5).value.toString() : '',
+                status: row.getCell(6).value ? row.getCell(6).value.toString() : '',
+                duration: row.getCell(7).value ? parseFloat(row.getCell(7).value) : 0,
+                remarks: row.getCell(8).value ? row.getCell(8).value.toString() : '',
+                errorDetails: row.getCell(9).value ? row.getCell(9).value.toString() : '',
+                screenshot: row.getCell(10).value ? row.getCell(10).value.toString() : ''
+              });
+            });
+            console.log(`✅ Loaded ${data.length} results for [${suiteName}] from Excel RawData: ${candidate}`);
+            return data;
+          }
+        } catch (err) {
+          console.error(`❌ Error parsing Excel for [${suiteName}] from ${candidate}:`, err.message);
+        }
       }
     }
   }
@@ -144,43 +174,49 @@ async function compileReport() {
 
   // Load results and append the Test Suite labels
   const suiteResultsMap = {
-    selenium: loadSuiteResults('Selenium', [
+    selenium: (await loadSuiteResults('Selenium', [
+      'smart_hostel_testing/reporter/results/selenium-web-report/selenium_web_report.xlsx',
       'smart_hostel_testing/reporter/results/selenium-web-report/selenium_web_results.json',
       'smart_hostel_testing/reporter/results/selenium_web_results.json',
       'smart_hostel_testing/web_selenium/web_results.json',
       'web_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Web Selenium' })),
+    ])).map(r => ({ ...r, suiteLabel: 'Web Selenium' })),
     
-    appium: loadSuiteResults('Appium', [
+    appium: (await loadSuiteResults('Appium', [
+      'smart_hostel_testing/reporter/results/appium-android-report/appium_android_report.xlsx',
       'smart_hostel_testing/reporter/results/appium-android-report/appium_android_results.json',
       'smart_hostel_testing/reporter/results/appium_android_results.json',
       'smart_hostel_testing/mobile_appium/mobile_results.json',
       'mobile_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Mobile Appium' })),
+    ])).map(r => ({ ...r, suiteLabel: 'Mobile Appium' })),
     
-    unit: loadSuiteResults('Unit API', [
+    unit: (await loadSuiteResults('Unit API', [
+      'smart_hostel_testing/reporter/results/unit-test-report/unit_test_report.xlsx',
       'smart_hostel_testing/reporter/results/unit-test-report/unit_test_results.json',
       'smart_hostel_testing/reporter/results/unit_test_results.json',
       'unit_test_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Unit API' })),
+    ])).map(r => ({ ...r, suiteLabel: 'Unit API' })),
     
-    validation: loadSuiteResults('Validation', [
+    validation: (await loadSuiteResults('Validation', [
+      'smart_hostel_testing/reporter/results/validation-test-report/validation_test_report.xlsx',
       'smart_hostel_testing/reporter/results/validation-test-report/validation_test_results.json',
       'smart_hostel_testing/reporter/results/validation_test_results.json',
       'validation_test_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Validation Tests' })),
+    ])).map(r => ({ ...r, suiteLabel: 'Validation Tests' })),
     
-    deployment: loadSuiteResults('Deployment Status', [
+    deployment: (await loadSuiteResults('Deployment Status', [
+      'smart_hostel_testing/reporter/results/deployment-test-report/deployment_test_report.xlsx',
       'smart_hostel_testing/reporter/results/deployment-test-report/deployment_test_results.json',
       'smart_hostel_testing/reporter/results/deployment_test_results.json',
       'deployment_test_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Deployment Status' })),
+    ])).map(r => ({ ...r, suiteLabel: 'Deployment Status' })),
     
-    load: loadSuiteResults('Load/Performance', [
+    load: (await loadSuiteResults('Load/Performance', [
+      'smart_hostel_testing/reporter/results/load-test-report/load_test_report.xlsx',
       'smart_hostel_testing/reporter/results/load-test-report/load_test_results.json',
       'smart_hostel_testing/reporter/results/load_test_results.json',
       'load_test_results.json'
-    ]).map(r => ({ ...r, suiteLabel: 'Load Testing' }))
+    ])).map(r => ({ ...r, suiteLabel: 'Load Testing' }))
   };
 
   // Combine results
