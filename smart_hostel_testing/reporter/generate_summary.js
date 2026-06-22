@@ -1,38 +1,113 @@
 const fs = require('fs');
 const path = require('path');
 
-const WEBSUITE_DIR = path.join(__dirname, '..', 'web_selenium');
-const MOBILESUP_DIR = path.join(__dirname, '..', 'mobile_appium');
-
-function getResults() {
-  let webResults = [];
-  const webPath = path.join(WEBSUITE_DIR, 'web_results.json');
-  if (fs.existsSync(webPath)) {
-    webResults = JSON.parse(fs.readFileSync(webPath, 'utf8'));
+const SUITES = [
+  { 
+    key: 'selenium', 
+    label: '🌐 Web Selenium', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/selenium-web-report/selenium_web_results.json',
+      'smart_hostel_testing/reporter/results/selenium_web_results.json',
+      'smart_hostel_testing/web_selenium/web_results.json',
+      'web_results.json'
+    ] 
+  },
+  { 
+    key: 'appium', 
+    label: '📱 Mobile Appium', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/appium-android-report/appium_android_results.json',
+      'smart_hostel_testing/reporter/results/appium_android_results.json',
+      'smart_hostel_testing/mobile_appium/mobile_results.json',
+      'mobile_results.json'
+    ] 
+  },
+  { 
+    key: 'unit', 
+    label: '🧪 Unit API', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/unit-test-report/unit_test_results.json',
+      'smart_hostel_testing/reporter/results/unit_test_results.json',
+      'unit_test_results.json'
+    ] 
+  },
+  { 
+    key: 'validation', 
+    label: '🛡️ Validation Tests', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/validation-test-report/validation_test_results.json',
+      'smart_hostel_testing/reporter/results/validation_test_results.json',
+      'validation_test_results.json'
+    ] 
+  },
+  { 
+    key: 'deployment', 
+    label: '🚀 Deployment Status', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/deployment-test-report/deployment_test_results.json',
+      'smart_hostel_testing/reporter/results/deployment_test_results.json',
+      'deployment_test_results.json'
+    ] 
+  },
+  { 
+    key: 'load', 
+    label: '⚡ Load Testing', 
+    candidates: [
+      'smart_hostel_testing/reporter/results/load-test-report/load_test_results.json',
+      'smart_hostel_testing/reporter/results/load_test_results.json',
+      'load_test_results.json'
+    ] 
   }
+];
 
-  let mobileResults = [];
-  const mobilePath = path.join(MOBILESUP_DIR, 'mobile_results.json');
-  if (fs.existsSync(mobilePath)) {
-    mobileResults = JSON.parse(fs.readFileSync(mobilePath, 'utf8'));
+function loadSuiteResults(candidates) {
+  for (const candidate of candidates) {
+    const filePath = path.isAbsolute(candidate) 
+      ? candidate 
+      : path.resolve(path.join(__dirname, '..', '..', candidate));
+
+    if (fs.existsSync(filePath)) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const data = JSON.parse(content);
+        if (Array.isArray(data)) {
+          return data;
+        }
+      } catch (err) {}
+    }
   }
-
-  return { webResults, mobileResults };
+  return [];
 }
 
 function generateMarkdown() {
-  const { webResults, mobileResults } = getResults();
-  const allResults = [...webResults, ...mobileResults];
+  const suitesData = SUITES.map(s => {
+    const results = loadSuiteResults(s.candidates);
+    return {
+      label: s.label,
+      results
+    };
+  });
+
+  const allResults = [];
+  suitesData.forEach(s => allResults.push(...s.results));
+
   const total = allResults.length;
   const passed = allResults.filter(r => r.status === 'PASS').length;
   const failed = allResults.filter(r => r.status === 'FAIL').length;
   const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : '0';
 
-  let md = `## 🏨 Smart Hostel E2E QA Test Summary\n\n`;
+  let md = `## 🏨 Smart Hostel E2E Pipeline QA Test Summary\n\n`;
   md += `| Suite | Total Cases | Passed | Failed | Pass Rate |\n`;
   md += `| :--- | :---: | :---: | :---: | :---: |\n`;
-  md += `| 🌐 Web Selenium | ${webResults.length} | ${webResults.filter(r => r.status === 'PASS').length} | ${webResults.filter(r => r.status === 'FAIL').length} | ${webResults.length > 0 ? ((webResults.filter(r => r.status === 'PASS').length / webResults.length) * 100).toFixed(1) + '%' : '0%'} |\n`;
-  md += `| 📱 Mobile Appium | ${mobileResults.length} | ${mobileResults.filter(r => r.status === 'PASS').length} | ${mobileResults.filter(r => r.status === 'FAIL').length} | ${mobileResults.length > 0 ? ((mobileResults.filter(r => r.status === 'PASS').length / mobileResults.length) * 100).toFixed(1) + '%' : '0%'} |\n`;
+  
+  suitesData.forEach(s => {
+    const sTotal = s.results.length;
+    const sPass = s.results.filter(r => r.status === 'PASS').length;
+    const sFail = s.results.filter(r => r.status === 'FAIL').length;
+    const sRate = sTotal > 0 ? ((sPass / sTotal) * 100).toFixed(1) + '%' : '0%';
+    md += `| ${s.label} | ${sTotal} | ${sPass} | ${sFail} | ${sRate} |\n`;
+  });
+  
   md += `| **Total** | **${total}** | **${passed}** | **${failed}** | **${passRate}%** |\n\n`;
 
   if (failed > 0) {
@@ -40,33 +115,16 @@ function generateMarkdown() {
     md += `| ID | Suite | Module | Test Case Name | Failure Remarks |\n`;
     md += `| :--- | :--- | :--- | :--- | :--- |\n`;
     allResults.filter(r => r.status === 'FAIL').forEach(r => {
-      const suite = r.id.includes('mobile') || r.module.includes('Mobile') ? '📱 Mobile' : '🌐 Web';
-      md += `| **${r.id}** | ${suite} | ${r.module} | ${r.testName} | \`${r.remarks}\` |\n`;
+      md += `| **${r.id}** | ${r.module} | ${r.testName} | \`${r.remarks}\` |\n`;
     });
     md += `\n`;
   } else {
     md += `### 🎉 All test cases passed successfully!\n\n`;
   }
 
-  md += `### 🌐 Web E2E Test Cases (${webResults.length} cases)\n`;
-  md += `<details>\n<summary>Click to expand/collapse Web test list</summary>\n\n`;
-  md += `| ID | Module | Category | Test Case Name | Status | Duration |\n`;
-  md += `| :--- | :--- | :--- | :--- | :---: | :---: |\n`;
-  webResults.forEach(r => {
-    const statusIcon = r.status === 'PASS' ? '🟢 PASS' : '🔴 FAIL';
-    md += `| ${r.id} | ${r.module} | ${r.category} | ${r.testName} | ${statusIcon} | ${r.duration}s |\n`;
-  });
-  md += `\n</details>\n\n`;
-
-  md += `### 📱 Mobile Appium Test Cases (${mobileResults.length} cases)\n`;
-  md += `<details>\n<summary>Click to expand/collapse Mobile test list</summary>\n\n`;
-  md += `| ID | Module | Category | Test Case Name | Status | Duration |\n`;
-  md += `| :--- | :--- | :--- | :--- | :---: | :---: |\n`;
-  mobileResults.forEach(r => {
-    const statusIcon = r.status === 'PASS' ? '🟢 PASS' : '🔴 FAIL';
-    md += `| ${r.id} | ${r.module} | ${r.category} | ${r.testName} | ${statusIcon} | ${r.duration}s |\n`;
-  });
-  md += `\n</details>\n\n`;
+  // Deployed dashboard link
+  md += `### 🌐 Live Dashboard\n`;
+  md += `View the interactive visual report at: [https://Shanmukapriya12.github.io/SmartHostel](https://Shanmukapriya12.github.io/SmartHostel)\n\n`;
 
   return md;
 }

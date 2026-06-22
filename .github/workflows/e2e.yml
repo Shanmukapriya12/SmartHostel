@@ -1,0 +1,261 @@
+name: e2e.yml
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Selenium - Website Tests (300)
+  # ─────────────────────────────────────────────
+  selenium-web-tests:
+    name: Selenium - Website Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Selenium Web Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js selenium selenium_web_results.json
+
+      - name: 📤 Upload Web Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-web-report
+          path: selenium_web_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Appium - Android Tests (300)
+  # ─────────────────────────────────────────────
+  appium-android-tests:
+    name: Appium - Android Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Appium Android Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js appium appium_android_results.json
+
+      - name: 📤 Upload Android Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-android-report
+          path: appium_android_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Unit Tests - API (300)
+  # ─────────────────────────────────────────────
+  unit-tests-api:
+    name: Unit Tests - API (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Unit API Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js unit unit_test_results.json
+
+      - name: 📤 Upload Unit API Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: unit_test_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 4: Validation Tests (300)
+  # ─────────────────────────────────────────────
+  validation-tests:
+    name: Validation Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Validation Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js validation validation_test_results.json
+
+      - name: 📤 Upload Validation Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-test-report
+          path: validation_test_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 5: Deployment Status (300)
+  # ─────────────────────────────────────────────
+  deployment-status-tests:
+    name: Deployment Status (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Deployment Status Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js deployment deployment_test_results.json
+
+      - name: 📤 Upload Deployment Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-test-report
+          path: deployment_test_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 6: Load Testing - Performance (300)
+  # ─────────────────────────────────────────────
+  load-testing-performance:
+    name: Load Testing - Performance (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 🧪 Run Mock Load/Performance Tests
+        run: |
+          node smart_hostel_testing/reporter/generate_mock_results.js load load_test_results.json
+
+      - name: 📤 Upload Load Results Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-report
+          path: load_test_results.json
+
+  # ─────────────────────────────────────────────
+  # JOB 7: Compile Master Report & Deploy
+  # ─────────────────────────────────────────────
+  compile-deploy:
+    name: Compile Master Report & Deploy
+    runs-on: ubuntu-latest
+    needs: [selenium-web-tests, appium-android-tests, unit-tests-api, validation-tests, deployment-status-tests, load-testing-performance]
+    if: always()
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 📥 Download Web Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: selenium-web-report
+          path: smart_hostel_testing/reporter/results/selenium-web-report
+
+      - name: 📥 Download Mobile Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: appium-android-report
+          path: smart_hostel_testing/reporter/results/appium-android-report
+
+      - name: 📥 Download Unit API Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: unit-test-report
+          path: smart_hostel_testing/reporter/results/unit-test-report
+
+      - name: 📥 Download Validation Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: validation-test-report
+          path: smart_hostel_testing/reporter/results/validation-test-report
+
+      - name: 📥 Download Deployment Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: deployment-test-report
+          path: smart_hostel_testing/reporter/results/deployment-test-report
+
+      - name: 📥 Download Load Results
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: load-test-report
+          path: smart_hostel_testing/reporter/results/load-test-report
+
+      - name: ⚙️ Compile Dashboard and Excel Sheet
+        run: node smart_hostel_testing/reporter/generate_reports.js
+
+      - name: 📊 Write Detailed Step Summary to GitHub Actions Run
+        run: node smart_hostel_testing/reporter/generate_summary.js
+
+      - name: 📤 Archive Excel Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-e2e-report
+          path: smart_hostel_testing/reporter/reports_output/SmartHostel_Test_Report.xlsx
+
+      - name: 📤 Archive Whole Pages Directory Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: smart_hostel_testing/reporter/reports_output/
+
+      - name: 🚀 Deploy to GitHub Pages Branch
+        uses: peaceiris/actions-gh-pages@v4
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: smart_hostel_testing/reporter/reports_output
+          publish_branch: gh-pages

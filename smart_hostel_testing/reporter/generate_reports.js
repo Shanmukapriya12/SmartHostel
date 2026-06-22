@@ -1,7 +1,7 @@
 /**
  * ============================================================
  *  Unified Report and Dashboard Compiler
- *  Smart Hostel Management System
+ *  Smart Hostel Management System (6-Suite Version)
  * ============================================================
  */
 
@@ -9,8 +9,6 @@ const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 
-const WEBSUITE_DIR = path.join(__dirname, '..', 'web_selenium');
-const MOBILESUP_DIR = path.join(__dirname, '..', 'mobile_appium');
 const OUTPUT_DIR = path.join(__dirname, 'reports_output');
 
 // Ensure output directory layout exists
@@ -35,45 +33,91 @@ function copyDirFiles(srcDir, destDir) {
   }
 }
 
+// Robust helper to find and read JSON results files
+function loadSuiteResults(suiteName, candidates) {
+  for (const candidate of candidates) {
+    // Try absolute or relative to project root (2 levels up from reporter)
+    const filePath = path.isAbsolute(candidate) 
+      ? candidate 
+      : path.resolve(path.join(__dirname, '..', '..', candidate));
+
+    if (fs.existsSync(filePath)) {
+      try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const data = JSON.parse(content);
+        if (Array.isArray(data)) {
+          console.log(`✅ Loaded ${data.length} results for [${suiteName}] from: ${candidate}`);
+          return data;
+        }
+      } catch (err) {
+        console.error(`❌ Error parsing JSON for [${suiteName}] from ${candidate}:`, err.message);
+      }
+    }
+  }
+  console.log(`⚠️  Warning: No results found for [${suiteName}]. Tried candidates: ${candidates.join(', ')}`);
+  return [];
+}
+
 async function compileReport() {
-  console.log('🏁 Starting report compilation...');
+  console.log('🏁 Starting unified report compilation (6 test suites)...');
 
-  // 1. Read Web results
-  let webResults = [];
-  const webPath = path.join(WEBSUITE_DIR, 'web_results.json');
-  if (fs.existsSync(webPath)) {
-    webResults = JSON.parse(fs.readFileSync(webPath, 'utf8'));
-    console.log(`Loaded ${webResults.length} Web Selenium results.`);
-  } else {
-    console.log('⚠️  No Web results JSON found.');
-  }
-
-  // 2. Read Mobile results
-  let mobileResults = [];
-  const mobilePath = path.join(MOBILESUP_DIR, 'mobile_results.json');
-  if (fs.existsSync(mobilePath)) {
-    mobileResults = JSON.parse(fs.readFileSync(mobilePath, 'utf8'));
-    console.log(`Loaded ${mobileResults.length} Mobile Appium results.`);
-  } else {
-    console.log('⚠️  No Mobile results JSON found.');
-  }
+  // Define candidate search paths for each suite's results
+  const suiteResultsMap = {
+    selenium: loadSuiteResults('Selenium', [
+      'smart_hostel_testing/reporter/results/selenium-web-report/selenium_web_results.json',
+      'smart_hostel_testing/reporter/results/selenium_web_results.json',
+      'smart_hostel_testing/web_selenium/web_results.json',
+      'web_results.json'
+    ]),
+    appium: loadSuiteResults('Appium', [
+      'smart_hostel_testing/reporter/results/appium-android-report/appium_android_results.json',
+      'smart_hostel_testing/reporter/results/appium_android_results.json',
+      'smart_hostel_testing/mobile_appium/mobile_results.json',
+      'mobile_results.json'
+    ]),
+    unit: loadSuiteResults('Unit API', [
+      'smart_hostel_testing/reporter/results/unit-test-report/unit_test_results.json',
+      'smart_hostel_testing/reporter/results/unit_test_results.json',
+      'unit_test_results.json'
+    ]),
+    validation: loadSuiteResults('Validation', [
+      'smart_hostel_testing/reporter/results/validation-test-report/validation_test_results.json',
+      'smart_hostel_testing/reporter/results/validation_test_results.json',
+      'validation_test_results.json'
+    ]),
+    deployment: loadSuiteResults('Deployment Status', [
+      'smart_hostel_testing/reporter/results/deployment-test-report/deployment_test_results.json',
+      'smart_hostel_testing/reporter/results/deployment_test_results.json',
+      'deployment_test_results.json'
+    ]),
+    load: loadSuiteResults('Load/Performance', [
+      'smart_hostel_testing/reporter/results/load-test-report/load_test_results.json',
+      'smart_hostel_testing/reporter/results/load_test_results.json',
+      'load_test_results.json'
+    ])
+  };
 
   // Combine results
-  const allResults = [...webResults, ...mobileResults];
+  const allResults = [];
+  Object.values(suiteResultsMap).forEach(results => {
+    allResults.push(...results);
+  });
+
   const total = allResults.length;
   const passCount = allResults.filter(r => r.status === 'PASS').length;
   const failCount = allResults.filter(r => r.status === 'FAIL').length;
   const skipCount = allResults.filter(r => r.status === 'SKIP').length;
   const passRate = total > 0 ? ((passCount / total) * 100).toFixed(1) : '0';
 
-  if (total === 0) {
-    console.warn('⚠️  Warning: No test results found. Report will be generated with zero results.');
-  }
+  console.log(`📊 Statistics Summary: Total=${total}, Passed=${passCount}, Failed=${failCount}, Pass Rate=${passRate}%`);
 
   // Copy screenshots to reports_output folder
-  copyDirFiles(path.join(WEBSUITE_DIR, 'screenshots'), outputWebDir);
-  copyDirFiles(path.join(MOBILESUP_DIR, 'screenshots'), outputMobileDir);
-  console.log('📸 Test screenshots copied to reports_output.');
+  copyDirFiles(path.resolve(__dirname, '..', 'web_selenium', 'screenshots'), outputWebDir);
+  copyDirFiles(path.resolve(__dirname, '..', 'mobile_appium', 'screenshots'), outputMobileDir);
+  // Also copy any screenshots from the results folders if they are nested
+  copyDirFiles(path.resolve(__dirname, 'results', 'selenium-web-report'), outputWebDir);
+  copyDirFiles(path.resolve(__dirname, 'results', 'appium-android-report'), outputMobileDir);
+  console.log('📸 Screenshots scanned and consolidated.');
 
   // 3. Generate HTML Dashboard
   const templatePath = path.join(__dirname, 'dashboard_template.html');
@@ -83,7 +127,7 @@ async function compileReport() {
     htmlContent = htmlContent.replace('{{TEST_RESULTS_JSON}}', JSON.stringify(allResults, null, 2));
     
     fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), htmlContent, 'utf8');
-    console.log('✅ HTML Dashboard generated successfully.');
+    console.log('✅ HTML Dashboard index.html generated successfully.');
   } else {
     console.error('❌ Error: dashboard_template.html template not found.');
   }
@@ -133,7 +177,7 @@ async function compileReport() {
 
   cover.mergeCells('B4:H4');
   const subCell = cover.getCell('B4');
-  subCell.value = 'END-TO-END QA TEST AUTOMATION SUITE REPORT';
+  subCell.value = 'END-TO-END QA TEST AUTOMATION PIPELINE REPORT';
   subCell.font = font(true, 11, '38BDF8');
   subCell.fill = fill('1E293B');
   subCell.alignment = align('center', 'middle');
@@ -146,6 +190,7 @@ async function compileReport() {
     ['Test Suite Run Date', `${dateStr}  ${timeStr}`],
     ['Web Testing Engine', 'Selenium WebDriver (NodeJS)'],
     ['Mobile Testing Engine', 'Appium Mobile Client (Python)'],
+    ['API & Unit Engine', 'REST Endpoint Assertions & Unit'],
     ['Execution Pipeline', 'GitHub Actions CI/CD Workflow'],
     ['Repository URL', 'https://github.com/Shanmukapriya12/SmartHostel'],
     ['GitHub Pages Dashboard', 'https://Shanmukapriya12.github.io/SmartHostel'],
@@ -215,21 +260,13 @@ async function compileReport() {
 
   summary.mergeCells('A1:E1');
   const sTitle = summary.getCell('A1');
-  sTitle.value = '📊 TEST CATEGORY & MODULE BREAKDOWN SUMMARY';
+  sTitle.value = '📊 TEST SUITES SUMMARY OVERVIEW';
   sTitle.font = font(true, 14, 'FFFFFF');
   sTitle.fill = fill(COLORS.headerBg);
   sTitle.alignment = align('center');
   summary.getRow(1).height = 32;
 
-  // Category counts
-  const categorySummary = {};
-  allResults.forEach(r => {
-    if (!categorySummary[r.category]) categorySummary[r.category] = { pass: 0, fail: 0 };
-    if (r.status === 'PASS') categorySummary[r.category].pass++;
-    else categorySummary[r.category].fail++;
-  });
-
-  summary.getRow(3).values = ['Category Name', 'Passed', 'Failed', 'Total Cases', 'Pass Rate (%)'];
+  summary.getRow(3).values = ['Suite Name', 'Passed', 'Failed', 'Total Cases', 'Pass Rate (%)'];
   summary.getRow(3).eachCell(c => {
     c.font = font(true, 11, 'FFFFFF');
     c.fill = fill('1E293B');
@@ -238,27 +275,33 @@ async function compileReport() {
   summary.getRow(3).height = 24;
 
   let rIdx = 4;
-  Object.entries(categorySummary).forEach(([cat, s]) => {
-    const rTotal = s.pass + s.fail;
-    const rRate = ((s.pass / rTotal) * 100).toFixed(1) + '%';
+  const suiteKeys = Object.keys(suiteResultsMap);
+  suiteKeys.forEach(suiteKey => {
+    const results = suiteResultsMap[suiteKey];
+    const sPass = results.filter(r => r.status === 'PASS').length;
+    const sFail = results.filter(r => r.status === 'FAIL').length;
+    const sTotal = results.length;
+    const sRate = sTotal > 0 ? ((sPass / sTotal) * 100).toFixed(1) + '%' : '0.0%';
+
+    const suiteLabel = suiteKey.charAt(0).toUpperCase() + suiteKey.slice(1) + ' Suite';
     const row = summary.getRow(rIdx);
-    row.values = [cat, s.pass, s.fail, rTotal, rRate];
+    row.values = [suiteLabel, sPass, sFail, sTotal, sRate];
     row.eachCell(c => { c.border = border(); c.font = font(false, 10); });
     row.getCell(1).font = font(true, 10);
     row.getCell(2).fill = fill(COLORS.pass);
-    row.getCell(3).fill = fill(s.fail > 0 ? COLORS.fail : COLORS.pass);
+    row.getCell(3).fill = fill(sFail > 0 ? COLORS.fail : COLORS.pass);
     row.height = 20;
     rIdx++;
   });
 
-  // Module counts
+  // Category counts
   rIdx += 2;
   summary.mergeCells(`A${rIdx}:E${rIdx}`);
-  summary.getCell(`A${rIdx}`).value = 'MODULE BREAKDOWN DETAILS';
+  summary.getCell(`A${rIdx}`).value = 'TEST CATEGORY SUMMARY';
   summary.getCell(`A${rIdx}`).font = font(true, 12, '1E293B');
   rIdx++;
 
-  summary.getRow(rIdx).values = ['Module Name', 'Passed', 'Failed', 'Total Cases', 'Pass Rate (%)'];
+  summary.getRow(rIdx).values = ['Category Name', 'Passed', 'Failed', 'Total Cases', 'Pass Rate (%)'];
   summary.getRow(rIdx).eachCell(c => {
     c.font = font(true, 11, 'FFFFFF');
     c.fill = fill('475569');
@@ -267,18 +310,18 @@ async function compileReport() {
   summary.getRow(rIdx).height = 24;
   rIdx++;
 
-  const moduleSummary = {};
+  const categorySummary = {};
   allResults.forEach(r => {
-    if (!moduleSummary[r.module]) moduleSummary[r.module] = { pass: 0, fail: 0 };
-    if (r.status === 'PASS') moduleSummary[r.module].pass++;
-    else moduleSummary[r.module].fail++;
+    if (!categorySummary[r.category]) categorySummary[r.category] = { pass: 0, fail: 0 };
+    if (r.status === 'PASS') categorySummary[r.category].pass++;
+    else categorySummary[r.category].fail++;
   });
 
-  Object.entries(moduleSummary).forEach(([mod, s]) => {
+  Object.entries(categorySummary).forEach(([cat, s]) => {
     const rTotal = s.pass + s.fail;
     const rRate = ((s.pass / rTotal) * 100).toFixed(1) + '%';
     const row = summary.getRow(rIdx);
-    row.values = [mod, s.pass, s.fail, rTotal, rRate];
+    row.values = [cat, s.pass, s.fail, rTotal, rRate];
     row.eachCell(c => { c.border = border(); c.font = font(false, 10); });
     row.getCell(1).font = font(true, 10);
     row.getCell(5).font = font(true, 10, s.fail === 0 ? COLORS.passFg : COLORS.failFg);
@@ -292,10 +335,10 @@ async function compileReport() {
   // ════════════════════════════════════════════════════════════
   const allSheet = workbook.addWorksheet('All Test Cases');
   allSheet.columns = [
-    { key: 'id',       header: 'Test ID',       width: 12 },
+    { key: 'id',       header: 'Test ID',       width: 15 },
     { key: 'module',   header: 'Module',          width: 24 },
     { key: 'category', header: 'Category',        width: 16 },
-    { key: 'testName', header: 'Test Case Name',  width: 55 },
+    { key: 'testName', header: 'Test Case Name',  width: 60 },
     { key: 'priority', header: 'Priority',        width: 12 },
     { key: 'status',   header: 'Status',          width: 12 },
     { key: 'duration', header: 'Duration (s)',    width: 14 },
@@ -342,7 +385,7 @@ async function compileReport() {
   // ════════════════════════════════════════════════════════════
   const failSheet = workbook.addWorksheet('Failed Tests');
   failSheet.columns = [
-    { key: 'id',       width: 12 },
+    { key: 'id',       width: 15 },
     { key: 'module',   width: 24 },
     { key: 'testName', width: 50 },
     { key: 'priority', width: 12 },
@@ -362,7 +405,12 @@ async function compileReport() {
 
   const failedTests = allResults.filter(r => r.status === 'FAIL');
   if (failedTests.length === 0) {
-    failSheet.addRow(['No failed test cases - All tests passed!']);
+    const row = failSheet.addRow(['No failed test cases - All tests passed!']);
+    failSheet.mergeCells('A2:F2');
+    row.getCell(1).font = font(true, 11, COLORS.passFg);
+    row.getCell(1).fill = fill(COLORS.pass);
+    row.getCell(1).alignment = align('center');
+    row.height = 24;
   } else {
     failedTests.forEach(r => {
       const row = failSheet.addRow([
@@ -375,45 +423,64 @@ async function compileReport() {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  SHEET 5 — WEB TESTS DETAIL
+  //  SHEET 5 - 10 — INDIVIDUAL SUITES DETAIL
   // ════════════════════════════════════════════════════════════
-  const webSheet = workbook.addWorksheet('Web Selenium Tests');
-  webSheet.columns = allSheet.columns;
-  const wHeader = webSheet.getRow(1);
-  wHeader.values = allSheet.getRow(1).values;
-  wHeader.eachCell(c => {
-    c.font = font(true, 11, 'FFFFFF'); c.fill = fill('4F46E5'); c.border = border();
-  });
-  wHeader.height = 28;
+  const SUITES_CONFIG = [
+    { name: 'Web Selenium Tests', key: 'selenium', color: '4F46E5' },
+    { name: 'Mobile Appium Tests', key: 'appium', color: '0D9488' },
+    { name: 'Unit API Tests', key: 'unit', color: '10B981' },
+    { name: 'Validation Tests', key: 'validation', color: 'F59E0B' },
+    { name: 'Deployment Status Tests', key: 'deployment', color: '64748B' },
+    { name: 'Load Performance Tests', key: 'load', color: '8B5CF6' }
+  ];
 
-  webResults.forEach(r => {
-    const row = webSheet.addRow(r);
-    const isPass = r.status === 'PASS';
-    row.eachCell(c => { c.border = border(); c.font = font(false, 10); });
-    row.getCell(6).fill = fill(isPass ? COLORS.pass : COLORS.fail);
-    row.getCell(6).font = font(true, 10, isPass ? COLORS.passFg : COLORS.failFg);
-    row.height = 20;
-  });
+  SUITES_CONFIG.forEach(cfg => {
+    const suiteSheet = workbook.addWorksheet(cfg.name);
+    suiteSheet.columns = allSheet.columns;
+    
+    const sHeader = suiteSheet.getRow(1);
+    sHeader.values = allSheet.getRow(1).values;
+    sHeader.eachCell(c => {
+      c.font = font(true, 11, 'FFFFFF');
+      c.fill = fill(cfg.color);
+      c.border = border();
+      c.alignment = align('center', 'middle');
+    });
+    sHeader.height = 28;
 
-  // ════════════════════════════════════════════════════════════
-  //  SHEET 6 — MOBILE TESTS DETAIL
-  // ════════════════════════════════════════════════════════════
-  const mobSheet = workbook.addWorksheet('Mobile Appium Tests');
-  mobSheet.columns = allSheet.columns;
-  const mHeader = mobSheet.getRow(1);
-  mHeader.values = allSheet.getRow(1).values;
-  mHeader.eachCell(c => {
-    c.font = font(true, 11, 'FFFFFF'); c.fill = fill('0D9488'); c.border = border();
-  });
-  mHeader.height = 28;
+    const suiteResults = suiteResultsMap[cfg.key];
+    if (suiteResults.length === 0) {
+      const row = suiteSheet.addRow([`No results found or executed for ${cfg.name}`]);
+      suiteSheet.mergeCells('A2:H2');
+      row.getCell(1).font = font(true, 11, '475569');
+      row.getCell(1).fill = fill('F1F5F9');
+      row.getCell(1).alignment = align('center');
+      row.height = 24;
+    } else {
+      suiteResults.forEach((r, idx) => {
+        const row = suiteSheet.addRow(r);
+        const isPass = r.status === 'PASS';
+        
+        row.eachCell((c, colNum) => {
+          c.border = border();
+          c.font = font(false, 10);
+          c.alignment = align('left', 'middle', colNum === 8);
+          if (idx % 2 === 0) c.fill = fill('F8FAFC');
+        });
 
-  mobileResults.forEach(r => {
-    const row = mobSheet.addRow(r);
-    const isPass = r.status === 'PASS';
-    row.eachCell(c => { c.border = border(); c.font = font(false, 10); });
-    row.getCell(6).fill = fill(isPass ? COLORS.pass : COLORS.fail);
-    row.getCell(6).font = font(true, 10, isPass ? COLORS.passFg : COLORS.failFg);
-    row.height = 20;
+        row.getCell(6).fill = fill(isPass ? COLORS.pass : COLORS.fail);
+        row.getCell(6).font = font(true, 10, isPass ? COLORS.passFg : COLORS.failFg);
+        row.getCell(6).alignment = align('center');
+
+        const prioColors = { Critical: 'EF4444', High: 'F59E0B', Medium: '3B82F6', Low: '94A3B8' };
+        row.getCell(5).font = font(true, 10, prioColors[r.priority] || '000000');
+        row.getCell(5).alignment = align('center');
+        row.height = 20;
+      });
+    }
+
+    suiteSheet.autoFilter = { from: 'A1', to: 'H1' };
+    suiteSheet.views = [{ state: 'frozen', ySplit: 1 }];
   });
 
   // Save the report file
@@ -422,7 +489,7 @@ async function compileReport() {
   console.log(`✅ Excel Report generated: ${reportPath}`);
 
   // Copy Excel file to the root of the workspace for local easy access if needed
-  const rootReportPath = path.join(__dirname, '..', '..', 'E2E_Test_Report_SmartHostel_Latest.xlsx');
+  const rootReportPath = path.resolve(__dirname, '..', '..', 'E2E_Test_Report_SmartHostel_Latest.xlsx');
   fs.copyFileSync(reportPath, rootReportPath);
   console.log(`📂 Copied latest report to: ${rootReportPath}`);
   
