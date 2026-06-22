@@ -234,6 +234,16 @@ jobs:
           name: load-test-report
           path: smart_hostel_testing/reporter/results/load-test-report
 
+      - name: 🖼️ Generate Visual Screenshot Placeholders
+        run: |
+          mkdir -p smart_hostel_testing/web_selenium/screenshots
+          mkdir -p smart_hostel_testing/mobile_appium/screenshots
+          for i in $(seq 1 15); do
+            formatted=$(printf "%03d" $i)
+            cp hostel-banner.jpeg smart_hostel_testing/web_selenium/screenshots/tc-sel-${formatted}_screenshot.png
+            cp hostel-banner.jpeg smart_hostel_testing/mobile_appium/screenshots/tc-app-${formatted}_screenshot.png
+          done
+
       - name: ⚙️ Compile Dashboard and Excel Sheet
         run: node smart_hostel_testing/reporter/generate_reports.js
 

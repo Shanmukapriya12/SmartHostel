@@ -132,7 +132,10 @@ function generateSuiteResults(suiteName) {
   for (let i = 1; i <= totalCases; i++) {
     const idNum = String(i).padStart(3, '0');
     const id = `TC-${suiteName.substring(0, 3).toUpperCase()}-${idNum}`;
-    const module = getRandomItem(modules);
+    let module = getRandomItem(modules);
+    if (suiteName === 'appium') {
+      module = `Mobile: ${module}`;
+    }
     
     // Determine category
     let category = 'Functional';
