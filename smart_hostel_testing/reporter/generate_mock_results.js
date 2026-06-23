@@ -127,7 +127,7 @@ function generateSuiteResults(suiteName) {
   const results = [];
   const modules = MODULES_MAP[suiteName];
   const templates = TEMPLATES[suiteName];
-  const totalCases = 360;
+  const totalCases = 450;
 
   for (let i = 1; i <= totalCases; i++) {
     const idNum = String(i).padStart(3, '0');
@@ -227,7 +227,7 @@ function main() {
   }
 
   fs.writeFileSync(destPath, JSON.stringify(data, null, 2), 'utf8');
-  console.log(`Successfully generated 360 mock cases. Saved to: ${destPath}`);
+  console.log(`Successfully generated 450 mock cases. Saved to: ${destPath}`);
 }
 
 if (require.main === module) {

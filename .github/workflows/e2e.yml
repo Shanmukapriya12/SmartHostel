@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   # ─────────────────────────────────────────────
-  # JOB 1: Selenium - Website Tests (300)
+  # JOB 1: Selenium - Website Tests (450)
   # ─────────────────────────────────────────────
   selenium-web-tests:
     name: Selenium - Website Tests
@@ -52,7 +52,7 @@ jobs:
           path: selenium_web_report.xlsx
 
   # ─────────────────────────────────────────────
-  # JOB 2: Appium - Android Tests (300)
+  # JOB 2: Appium - Android Tests (450)
   # ─────────────────────────────────────────────
   appium-android-tests:
     name: Appium - Android Tests
@@ -82,7 +82,7 @@ jobs:
           path: appium_android_report.xlsx
 
   # ─────────────────────────────────────────────
-  # JOB 3: Unit Tests - API (300)
+  # JOB 3: Unit Tests - API (450)
   # ─────────────────────────────────────────────
   unit-tests-api:
     name: Unit Tests - API
@@ -112,7 +112,7 @@ jobs:
           path: unit_test_report.xlsx
 
   # ─────────────────────────────────────────────
-  # JOB 4: Validation Tests (300)
+  # JOB 4: Validation Tests (450)
   # ─────────────────────────────────────────────
   validation-tests:
     name: Validation Tests
@@ -142,7 +142,7 @@ jobs:
           path: validation_test_report.xlsx
 
   # ─────────────────────────────────────────────
-  # JOB 5: Deployment Status (300)
+  # JOB 5: Deployment Status (450)
   # ─────────────────────────────────────────────
   deployment-status-tests:
     name: Deployment Status
@@ -172,7 +172,7 @@ jobs:
           path: deployment_test_report.xlsx
 
   # ─────────────────────────────────────────────
-  # JOB 6: Load Testing - Performance (300)
+  # JOB 6: Load Testing - Performance (450)
   # ─────────────────────────────────────────────
   load-testing-performance:
     name: Load Testing - Performance
