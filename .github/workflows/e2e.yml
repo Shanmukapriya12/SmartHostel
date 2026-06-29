@@ -223,42 +223,42 @@ jobs:
         run: npm ci
 
       - name: 📥 Download Web Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: selenium-web-report
           path: smart_hostel_testing/reporter/results/selenium-web-report
 
       - name: 📥 Download Mobile Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: appium-android-report
           path: smart_hostel_testing/reporter/results/appium-android-report
 
       - name: 📥 Download Unit API Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: unit-test-report
           path: smart_hostel_testing/reporter/results/unit-test-report
 
       - name: 📥 Download Validation Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: validation-test-report
           path: smart_hostel_testing/reporter/results/validation-test-report
 
       - name: 📥 Download Deployment Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: deployment-test-report
           path: smart_hostel_testing/reporter/results/deployment-test-report
 
       - name: 📥 Download Load Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: load-test-report
